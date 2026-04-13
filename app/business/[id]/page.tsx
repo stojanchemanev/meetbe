@@ -1,25 +1,25 @@
-import { Employee, Service, Business } from "@/src/types";
+import { Employee, Service, Business, TimeSlot } from "@/src/types";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import BusinessComponent from "@/src/components/Businesses/Business";
 import { redirect } from "next/navigation";
 
 export interface BusinessPayload {
-    id: string | undefined;
-    ownerId: string;
+    id: string;
     name: string;
     description: string;
     category: string;
     address: string;
     logo: string;
     rating: number;
-    employees: Employee[];
+    employees: (Employee & { timeslots: TimeSlot[] })[];
     services: Service[];
 }
 
 type Props = {
     params: Promise<{ id: string }>;
 };
+
 const Page = async ({ params }: Props) => {
     const { id } = await params;
     console.log("id", id);
@@ -31,8 +31,11 @@ const Page = async ({ params }: Props) => {
             .from("businesses")
             .select(
                 `*,
-        employees:employees(*),
-        services:services(*)`,
+            employees:employees(
+                *,
+                timeslots:timeslots(*)
+            ),
+            services:services(*)`,
             )
             .eq("id", id)
             .single();

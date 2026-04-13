@@ -30,16 +30,17 @@ export interface Employee {
   name: string;
   role: string;
   avatar: string;
+  timeslots?: TimeSlot[];
 }
 
 export interface TimeSlot {
   id: string;
-  employeeId: string;
-  businessId: string;
-  startTime: string; // ISO string
-  endTime: string;   // ISO string
-  isBooked: boolean;
-  bookedBy?: string; // Client User ID
+  employee_id: string;
+  business_id: string;
+  start_time: string;
+  end_time: string;
+  is_booked: boolean;
+  booked_by?: string | null;
 }
 
 export interface Appointment {

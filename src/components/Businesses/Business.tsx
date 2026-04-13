@@ -4,28 +4,15 @@ import { BusinessPayload } from "@/app/business/[id]/page";
 import { useAuth } from "@/src/context/AuthContext";
 import { useBookings } from "@/src/context/BookingContext";
 import { useNotifications } from "@/src/context/NotificationContext";
-import {
-    Business as BusinessType,
-    Employee,
-    Service,
-    TimeSlot,
-    Appointment,
-} from "@/src/types";
-import { addHours } from "date-fns/fp/addHours";
+import { Employee, Service, TimeSlot } from "@/src/types";
+import BookingConfirmationModal from "../shared/ConfirmationModal";
 
-import { id } from "date-fns/locale/id";
-import {
-    CalendarIcon,
-    CheckCircle,
-    Clock,
-    MapPin,
-    Star,
-    X,
-} from "lucide-react";
+import { CheckCircle, Clock, MapPin, Star, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button, Card } from "../ui";
 import { format } from "date-fns";
 import Image from "next/image";
+import { createClient } from "@/utils/supabase/client";
 
 const Business = (data: BusinessPayload | null) => {
     const navigate = useRouter();
@@ -33,6 +20,7 @@ const Business = (data: BusinessPayload | null) => {
     const { addNotification } = useNotifications();
     const { addAppointment } = useBookings();
     const { user } = useAuth();
+    console.log("user", user);
 
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
         null,
@@ -40,8 +28,11 @@ const Business = (data: BusinessPayload | null) => {
     const [selectedService, setSelectedService] = useState<Service | null>(
         null,
     );
-    const [selectedDate, setSelectedDate] = useState(new Date());
-
+    const [selectedDate, setSelectedDate] = useState(() => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return tomorrow;
+    });
     // State for the confirmation modal
     const [slotToConfirm, setSlotToConfirm] = useState<TimeSlot | null>(null);
     const [bookingConfirmed, setBookingConfirmed] = useState(false);
@@ -101,25 +92,29 @@ const Business = (data: BusinessPayload | null) => {
         }
     }, [data]);
 
-    const slots = useMemo(() => {
-        const s: TimeSlot[] = [];
-        if (!selectedEmployee || !selectedService || !data) return [];
+    const slots: TimeSlot[] = useMemo(() => {
+        if (!selectedEmployee || !selectedService) return [];
 
-        for (let i = 0; i < 6; i++) {
-            const dayStart = new Date(selectedDate);
-            dayStart.setHours(0, 0, 0, 0);
-            const simpleStart = addHours(9 + i)(dayStart);
+        const employee = data?.employees?.find(
+            (e) => e.id === selectedEmployee.id,
+        );
+        if (!employee?.timeslots?.length) return [];
 
-            s.push({
-                id: `slot-${i}`,
-                employeeId: selectedEmployee.id,
-                businessId: data.id!,
-                startTime: simpleStart.toISOString(),
-                endTime: addHours(1)(simpleStart).toISOString(),
-                isBooked: i % 3 === 0,
-            });
-        }
-        return s;
+        // If selectedDate has no slots, fall back to the first available slot's date
+        const selected = format(selectedDate, "yyyy-MM-dd");
+        const hasSlots = employee.timeslots.some(
+            (slot) =>
+                format(new Date(slot.start_time), "yyyy-MM-dd") === selected,
+        );
+
+        const targetDate = hasSlots
+            ? selected
+            : format(new Date(employee.timeslots[0].start_time), "yyyy-MM-dd");
+
+        return employee.timeslots.filter(
+            (slot) =>
+                format(new Date(slot.start_time), "yyyy-MM-dd") === targetDate,
+        );
     }, [selectedEmployee, selectedService, selectedDate, data]);
 
     const initiateBooking = (slot: TimeSlot) => {
@@ -131,41 +126,56 @@ const Business = (data: BusinessPayload | null) => {
         setSlotToConfirm(slot);
     };
 
-    const confirmBooking = () => {
+    const confirmBooking = async () => {
         if (
-            slotToConfirm &&
-            selectedEmployee &&
-            selectedService &&
-            data &&
-            user
-        ) {
-            const newAppointment: Appointment = {
-                id: Math.random().toString(36).substr(2, 9),
-                slotId: slotToConfirm.id,
-                clientId: user.id,
-                clientName: user.name as string,
-                businessId: data.id as string,
-                businessName: data.name,
-                employeeId: selectedEmployee.id,
-                employeeName: selectedEmployee.name,
-                serviceName: selectedService.name,
-                startTime: slotToConfirm.startTime,
-                duration: selectedService.duration,
-                price: selectedService.price,
+            !slotToConfirm ||
+            !selectedEmployee ||
+            !selectedService ||
+            !data ||
+            !user
+        )
+            return;
+
+        const supabase = createClient();
+
+        // 1. Insert appointment
+        const { error: appointmentError } = await supabase
+            .from("appointments")
+            .insert({
+                slot_id: slotToConfirm.id,
+                client_id: user.id,
+                business_id: data.id,
+                employee_id: selectedEmployee.id,
                 status: "PENDING",
-                createdAt: new Date().toISOString(),
-            };
+            });
 
-            addAppointment(newAppointment);
-            setBookingConfirmed(true);
-
+        if (appointmentError) {
             addNotification(
-                "Booking Request Sent",
-                `Your request for ${selectedService.name} is pending approval from ${business.name}.`,
-                "booking",
+                "Booking Failed",
+                appointmentError.message,
+                "error",
             );
-            setSlotToConfirm(null);
+            return;
         }
+
+        // 2. Mark slot as booked
+        const { error: slotError } = await supabase
+            .from("timeslots")
+            .update({ is_booked: true, booked_by: user.id })
+            .eq("id", slotToConfirm.id);
+
+        if (slotError) {
+            addNotification("Booking Failed", slotError.message, "error");
+            return;
+        }
+
+        setBookingConfirmed(true);
+        addNotification(
+            "Booking Request Sent",
+            `Your request for ${selectedService.name} is pending approval from ${data.name}.`,
+            "booking",
+        );
+        setSlotToConfirm(null);
     };
 
     const resetSelection = () => {
@@ -182,6 +192,25 @@ const Business = (data: BusinessPayload | null) => {
             </div>
         );
     }
+
+    const handleEmployeeSelect = (
+        emp: Employee & { timeslots: TimeSlot[] },
+    ) => {
+        setSelectedEmployee(emp);
+        setBookingConfirmed(false);
+
+        const firstAvailableSlot = emp.timeslots?.find(
+            (slot) => !slot.is_booked,
+        );
+        if (firstAvailableSlot) {
+            setSelectedDate(new Date(firstAvailableSlot.start_time));
+        }
+    };
+
+    const handleServiceSelect = (service: Service) => {
+        setSelectedService(service);
+        setBookingConfirmed(false);
+    };
 
     return (
         <div className="min-h-screen bg-[#fcfcfc]">
@@ -236,10 +265,7 @@ const Business = (data: BusinessPayload | null) => {
                             {data?.employees?.map((emp) => (
                                 <button
                                     key={emp.id}
-                                    onClick={() => {
-                                        setSelectedEmployee(emp);
-                                        setBookingConfirmed(false);
-                                    }}
+                                    onClick={() => handleEmployeeSelect(emp)}
                                     className={`p-6 rounded-xl border-2 transition-all text-center ${
                                         selectedEmployee?.id === emp.id
                                             ? "bg-red-50/50 border-red-600 ring-4 ring-red-50 shadow-lg"
@@ -279,10 +305,9 @@ const Business = (data: BusinessPayload | null) => {
                                 {data.services.map((service) => (
                                     <button
                                         key={service.id}
-                                        onClick={() => {
-                                            setSelectedService(service);
-                                            setBookingConfirmed(false);
-                                        }}
+                                        onClick={() =>
+                                            handleServiceSelect(service)
+                                        }
                                         className={`flex items-start justify-between p-5 rounded-xl border-2 transition-all text-left ${
                                             selectedService?.id === service.id
                                                 ? "bg-red-50/50 border-red-600 shadow-md"
@@ -364,33 +389,59 @@ const Business = (data: BusinessPayload | null) => {
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-2 gap-2 animate-in fade-in">
-                                            {slots.map((slot) => {
-                                                console.log("slot", slot);
-
-                                                return (
+                                            {/* // Add this above the slots grid,
+                                            inside the "3. Select Time" section */}
+                                            <input
+                                                type="date"
+                                                value={format(
+                                                    selectedDate,
+                                                    "yyyy-MM-dd",
+                                                )}
+                                                min={format(
+                                                    new Date(),
+                                                    "yyyy-MM-dd",
+                                                )}
+                                                onChange={(e) =>
+                                                    setSelectedDate(
+                                                        new Date(
+                                                            e.target.value,
+                                                        ),
+                                                    )
+                                                }
+                                                className="w-full mb-4 p-2 text-sm border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:border-red-400"
+                                            />
+                                            {slots.length === 0 ? (
+                                                <div className="col-span-2 p-4 bg-gray-50 rounded-lg text-sm text-gray-400 text-center italic">
+                                                    No available slots for this
+                                                    date
+                                                </div>
+                                            ) : (
+                                                slots.map((slot) => (
                                                     <button
                                                         key={slot.id}
-                                                        disabled={slot.isBooked}
+                                                        disabled={
+                                                            slot.is_booked
+                                                        }
                                                         onClick={() =>
                                                             initiateBooking(
                                                                 slot,
                                                             )
                                                         }
                                                         className={`p-3 text-xs font-bold rounded-lg border transition-all text-center ${
-                                                            slot.isBooked
+                                                            slot.is_booked
                                                                 ? "bg-gray-100 border-gray-100 text-gray-300 cursor-not-allowed line-through"
                                                                 : "bg-white border-gray-200 text-gray-700 hover:border-red-600 hover:bg-red-50 hover:text-red-700"
                                                         }`}
                                                     >
                                                         {format(
                                                             new Date(
-                                                                slot.startTime,
+                                                                slot.start_time,
                                                             ),
                                                             "HH:mm",
                                                         )}
                                                     </button>
-                                                );
-                                            })}
+                                                ))
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -421,106 +472,14 @@ const Business = (data: BusinessPayload | null) => {
             </main>
 
             {/* Confirmation Popup Modal */}
-            {slotToConfirm && selectedEmployee && selectedService && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="p-6">
-                            <div className="flex justify-between items-start mb-6">
-                                <h3 className="text-xl font-black text-gray-900">
-                                    Confirm Booking
-                                </h3>
-                                <button
-                                    onClick={() => setSlotToConfirm(null)}
-                                    className="text-gray-400 hover:text-gray-900 transition-colors"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-
-                            <div className="space-y-4 mb-8">
-                                <div className="flex items-start gap-4 p-3 bg-red-50 rounded-xl">
-                                    <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center shrink-0 text-red-600">
-                                        <CalendarIcon className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-black text-red-500 uppercase tracking-wider mb-1">
-                                            When
-                                        </p>
-                                        <p className="text-sm font-bold text-gray-900">
-                                            {format(
-                                                slotToConfirm.startTime,
-                                                "EEEE, MMM do",
-                                            )}
-                                        </p>
-                                        <p className="text-sm font-medium text-gray-600">
-                                            {format(
-                                                slotToConfirm.startTime,
-                                                "h:mm a",
-                                            )}{" "}
-                                            -{" "}
-                                            {format(
-                                                slotToConfirm.endTime,
-                                                "h:mm a",
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between p-3 border border-gray-100 rounded-xl">
-                                    <div className="flex items-center gap-3">
-                                        <Image
-                                            src={selectedEmployee.avatar}
-                                            alt={selectedEmployee.name}
-                                            className="w-8 h-8 rounded-full object-cover"
-                                            width={32}
-                                            height={32}
-                                        />
-                                        <div>
-                                            <p className="text-xs font-bold text-gray-900">
-                                                {selectedEmployee.name}
-                                            </p>
-                                            <p className="text-[10px] text-gray-500">
-                                                {selectedEmployee.role}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between p-3 border border-gray-100 rounded-xl">
-                                    <div>
-                                        <p className="text-xs font-bold text-gray-900">
-                                            {selectedService.name}
-                                        </p>
-                                        <p className="text-[10px] text-gray-500">
-                                            {selectedService.duration} mins
-                                        </p>
-                                    </div>
-                                    <span className="font-black text-gray-900">
-                                        {selectedService.price}
-                                    </span>
-                                </div>
-
-                                <div className="flex gap-2 p-3 bg-blue-50 text-blue-800 rounded-lg text-xs font-medium">
-                                    <AlertCircle className="w-4 h-4 shrink-0" />
-                                    This appointment will be pending until
-                                    confirmed by the business.
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setSlotToConfirm(null)}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button onClick={confirmBooking}>
-                                    Request
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            {slotToConfirm && (
+                <BookingConfirmationModal
+                    slotToConfirm={slotToConfirm}
+                    selectedEmployee={selectedEmployee}
+                    selectedService={selectedService}
+                    onClose={() => setSlotToConfirm(null)}
+                    onConfirm={confirmBooking}
+                />
             )}
         </div>
     );

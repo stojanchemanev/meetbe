@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect, createContext, useContext } from "react";
 import { User, UserRole } from "../types";
-import { signUp, signIn, signOut, getCurrentUser } from "@/app/actions/auth";
+import { signUp, signIn, signOut } from "@/app/actions/auth";
+import { createClient } from "@/utils/supabase/client";
 
 interface AuthContextType {
     user: User | null;
@@ -34,25 +35,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const supabase = createClient();
+
+    const fetchProfile = async (authId: string): Promise<User | null> => {
+        // Get the auth user's email first
+        const {
+            data: { user: authUser },
+        } = await supabase.auth.getUser();
+        if (!authUser?.email) return null;
+
+        const { data, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("email", authUser.email)
+            .single();
+
+        if (error?.code === "PGRST116") return null;
+        return (data as User) ?? null;
+    };
 
     useEffect(() => {
-        const checkUser = async () => {
-            const { user: currentUser } = await getCurrentUser();
-            setUser(currentUser as User | null);
+        // onAuthStateChange fires after session is rehydrated from cookies —
+        // this is the only reliable place to read auth state on the client.
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.user) {
+                const profile = await fetchProfile(session.user.id);
+                setUser(profile);
+            } else {
+                setUser(null);
+            }
             setLoading(false);
-        };
-        checkUser();
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
-    const login = async (email: string, password: string, role: UserRole) => {
+    const login = async (email: string, password: string, _role: UserRole) => {
         const result = await signIn(email, password);
-        if (result.error) {
-            return { success: false, error: result.error };
-        }
-        // Fetch the updated user profile
-        const { user: currentUser } = await getCurrentUser();
-        setUser(currentUser as User | null);
+        if (result.error) return { success: false, error: result.error };
+        // onAuthStateChange will fire and set the user automatically
         return { success: true };
+    };
+
+    const logout = async () => {
+        await signOut();
+        // onAuthStateChange will fire and clear the user automatically
     };
 
     const register = async (
@@ -62,18 +91,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         role: UserRole,
     ) => {
         const result = await signUp(email, password, name, role);
-        if (result.error) {
-            return { success: false, error: result.error };
-        }
-        // Fetch the updated user profile
-        const { user: currentUser } = await getCurrentUser();
-        setUser(currentUser as User | null);
-        return { success: true };
-    };
+        if (result.error) return { success: false, error: result.error };
 
-    const logout = async () => {
-        await signOut();
-        setUser(null);
+        // signUp finished — profile row is committed, now safe to fetch
+        if (result.profile) {
+            setUser(result.profile as User);
+        }
+        return { success: true };
     };
 
     return (
