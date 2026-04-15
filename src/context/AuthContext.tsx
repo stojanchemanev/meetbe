@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, createContext, useContext } from "react";
 import { User, UserRole } from "../types";
-import { signUp, signIn, signOut } from "@/app/actions/auth";
+import { signUp } from "@/app/actions/auth";
 import { createClient } from "@/utils/supabase/client";
 
 interface AuthContextType {
@@ -66,14 +66,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }, [supabase]);
 
     const login = async (email: string, password: string) => {
-        const result = await signIn(email, password);
-        if (result.error) return { success: false, error: result.error };
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) return { success: false, error: error.message };
         // onAuthStateChange will fire and set the user automatically
         return { success: true };
     };
 
     const logout = async () => {
-        await signOut();
+        await supabase.auth.signOut();
         // onAuthStateChange will fire and clear the user automatically
     };
 

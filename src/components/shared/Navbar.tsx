@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Calendar, LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { UserRole } from "../../types";
@@ -8,6 +9,13 @@ import { NotificationBell } from "../shared/NotificationBell";
 
 export const Navbar = () => {
     const { user, logout } = useAuth();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await logout();
+        router.push("/");
+    };
+
     return (
         <nav className="border-b border-gray-100 bg-white/90 backdrop-blur-md sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -49,7 +57,7 @@ export const Navbar = () => {
                                     {user.name.charAt(0).toUpperCase()}
                                 </div>
                                 <button
-                                    onClick={logout}
+                                    onClick={handleLogout}
                                     className="p-1 text-gray-400 hover:text-red-600 transition-colors"
                                 >
                                     <LogOut className="w-4 h-4" />

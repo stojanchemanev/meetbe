@@ -22,7 +22,6 @@ type Props = {
 
 const Page = async ({ params }: Props) => {
     const { id } = await params;
-    console.log("id", id);
     const cookieStore = await cookies();
 
     const supabase = createClient(cookieStore);
@@ -40,7 +39,6 @@ const Page = async ({ params }: Props) => {
             .eq("id", id)
             .single();
 
-    console.log("response", response);
     if (response.error || !response.data) {
         redirect("/not-found");
     }
