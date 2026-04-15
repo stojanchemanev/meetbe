@@ -79,25 +79,25 @@ async function seed() {
         const authUsers = await createAuthUsers([
             {
                 email: "owner1@test.com",
-                password: "password123",
+                password: "P@ssw0rd",
                 name: "Salon Owner",
                 role: "BUSINESS",
             },
             {
                 email: "owner2@test.com",
-                password: "password123",
+                password: "P@ssw0rd",
                 name: "Gym Owner",
                 role: "BUSINESS",
             },
             {
                 email: "owner3@test.com",
-                password: "password123",
+                password: "P@ssw0rd",
                 name: "Yoga Owner",
                 role: "BUSINESS",
             },
             {
                 email: "client1@test.com",
-                password: "password123",
+                password: "P@ssw0rd",
                 name: "John Client",
                 role: "CLIENT",
             },
