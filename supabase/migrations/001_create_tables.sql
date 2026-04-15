@@ -36,6 +36,7 @@ CREATE TABLE businesses (
 CREATE TABLE employees (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   name VARCHAR(255) NOT NULL,
   role VARCHAR(100) NOT NULL,
   avatar TEXT,
@@ -110,3 +111,60 @@ CREATE INDEX idx_appointments_status ON appointments(status);
 CREATE INDEX idx_appointments_service_id ON appointments(service_id);
 CREATE INDEX idx_favorites_client_id ON favorites(client_id);
 CREATE INDEX idx_favorites_business_id ON favorites(business_id);
+
+-- EMPLOYEE-USER LINK INDEXES
+-- One user per business (enforces the one-to-one employee↔user constraint per business)
+CREATE UNIQUE INDEX idx_employees_business_user_unique
+  ON employees (business_id, user_id)
+  WHERE user_id IS NOT NULL;
+
+-- Fast lookup: which businesses is this user an employee at?
+CREATE INDEX idx_employees_user_id
+  ON employees (user_id)
+  WHERE user_id IS NOT NULL;
+
+-- SELF-BOOKING PREVENTION
+CREATE OR REPLACE FUNCTION prevent_employee_self_booking()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM employees
+    WHERE business_id = NEW.business_id
+      AND user_id = NEW.client_id
+      AND user_id IS NOT NULL
+  ) THEN
+    RAISE EXCEPTION 'EMPLOYEE_SELF_BOOKING: User % cannot book at business %.',
+      NEW.client_id, NEW.business_id USING ERRCODE = 'P0001';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_prevent_employee_self_booking
+  BEFORE INSERT ON appointments
+  FOR EACH ROW EXECUTE FUNCTION prevent_employee_self_booking();
+
+-- RLS ON EMPLOYEES
+ALTER TABLE employees ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can read employee cards (preserves existing /business/[id] behaviour)
+CREATE POLICY "employees_public_read"
+  ON employees FOR SELECT USING (true);
+
+-- Business owner can manage their own employees (and set user_id)
+CREATE POLICY "employees_owner_write"
+  ON employees FOR ALL
+  USING (
+    EXISTS (SELECT 1 FROM businesses
+            WHERE businesses.id = employees.business_id
+              AND businesses.owner_id = auth.uid())
+  )
+  WITH CHECK (
+    EXISTS (SELECT 1 FROM businesses
+            WHERE businesses.id = employees.business_id
+              AND businesses.owner_id = auth.uid())
+  );
+
+-- Linked user can always read their own employee row (needed for navbar check)
+CREATE POLICY "employees_self_read"
+  ON employees FOR SELECT USING (user_id = auth.uid());

@@ -108,14 +108,29 @@ async function seed() {
                 name: "Jane Client",
                 role: "CLIENT",
             },
+            // Employee-linked CLIENT users (also staff at a business)
+            {
+                email: "emp1@test.com",
+                password: "P@ssw0rd",
+                name: "Sarah Johnson",
+                role: "CLIENT",
+            },
+            {
+                email: "emp2@test.com",
+                password: "P@ssw0rd",
+                name: "Mike Chen",
+                role: "CLIENT",
+            },
         ]);
 
-        const [owner1, owner2, owner3, client1, client2] = [
+        const [owner1, owner2, owner3, client1, client2, emp1, emp2] = [
             authUsers["owner1@test.com"],
             authUsers["owner2@test.com"],
             authUsers["owner3@test.com"],
             authUsers["client1@test.com"],
             authUsers["client2@test.com"],
+            authUsers["emp1@test.com"],
+            authUsers["emp2@test.com"],
         ];
 
         // ---------- USERS (mirror auth UIDs) ----------
@@ -148,6 +163,18 @@ async function seed() {
                 id: client2.id,
                 email: "client2@test.com",
                 name: "Jane Client",
+                role: "CLIENT",
+            },
+            {
+                id: emp1.id,
+                email: "emp1@test.com",
+                name: "Sarah Johnson",
+                role: "CLIENT",
+            },
+            {
+                id: emp2.id,
+                email: "emp2@test.com",
+                name: "Mike Chen",
                 role: "CLIENT",
             },
         ]);
@@ -200,12 +227,14 @@ async function seed() {
             .insert([
                 {
                     business_id: salon.id,
+                    user_id: emp1.id,
                     name: "Sarah Johnson",
                     role: "Senior Stylist",
                     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300",
                 },
                 {
                     business_id: gym.id,
+                    user_id: emp2.id,
                     name: "Mike Chen",
                     role: "Head Trainer",
                     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300",
@@ -530,19 +559,21 @@ async function seed() {
             throw new Error(`Favorites insert failed: ${favError.message}`);
 
         console.log("✅ Done!");
-        console.log(`   Users:        5`);
+        console.log(`   Users:        7`);
         console.log(`   Businesses:   ${businesses.length}`);
         console.log(`   Employees:    ${employees.length}`);
         console.log(`   Services:     6`);
         console.log(`   Timeslots:    ${timeslots.length}`);
         console.log(`   Appointments: ${appointments.length}`);
         console.log(`   Favorites:    3`);
-        console.log("\n🔑 Test credentials (all passwords: password123)");
-        console.log("   owner1@test.com  — Salon Owner (BUSINESS)");
-        console.log("   owner2@test.com  — Gym Owner   (BUSINESS)");
-        console.log("   owner3@test.com  — Yoga Owner  (BUSINESS)");
-        console.log("   client1@test.com — John Client (CLIENT)");
-        console.log("   client2@test.com — Jane Client (CLIENT)");
+        console.log("\n🔑 Test credentials");
+        console.log("   owner1@test.com  — Salon Owner  (BUSINESS)");
+        console.log("   owner2@test.com  — Gym Owner    (BUSINESS)");
+        console.log("   owner3@test.com  — Yoga Owner   (BUSINESS)");
+        console.log("   client1@test.com — John Client  (CLIENT)");
+        console.log("   client2@test.com — Jane Client  (CLIENT)");
+        console.log("   emp1@test.com    — Sarah Johnson (CLIENT + employee at Elite Hair Studio)");
+        console.log("   emp2@test.com    — Mike Chen     (CLIENT + employee at Fit Body Gym)");
     } catch (err) {
         console.error("❌ Error:", err.message);
         process.exit(1);
