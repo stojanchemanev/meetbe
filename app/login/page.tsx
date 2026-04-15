@@ -33,7 +33,7 @@ const Page = () => {
             return;
         }
 
-        const result = await login(email, password, role);
+        const result = await login(email, password);
 
         if (!result.success) {
             setError(result.error || "Login failed");

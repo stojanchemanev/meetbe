@@ -1,3 +1,11 @@
+-- DROP (reverse dependency order)
+DROP TABLE IF EXISTS appointments CASCADE;
+DROP TABLE IF EXISTS timeslots CASCADE;
+DROP TABLE IF EXISTS services CASCADE;
+DROP TABLE IF EXISTS employees CASCADE;
+DROP TABLE IF EXISTS businesses CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
 -- USERS (no FK to auth)
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

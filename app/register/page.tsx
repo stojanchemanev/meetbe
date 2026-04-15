@@ -22,7 +22,11 @@ const Page = () => {
 
     useEffect(() => {
         if (user && !loading) {
-            router.push("/");
+            router.push(
+                user.role === UserRole.BUSINESS
+                    ? "/dashboard/business"
+                    : "/dashboard/client",
+            );
         }
     }, [user, loading, router]);
 
@@ -75,7 +79,11 @@ const Page = () => {
             return;
         }
 
-        router.push("/");
+        router.push(
+            role === UserRole.BUSINESS
+                ? "/dashboard/business"
+                : "/dashboard/client",
+        );
     };
 
     return (

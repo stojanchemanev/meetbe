@@ -9,7 +9,6 @@ interface AuthContextType {
     login: (
         email: string,
         password: string,
-        role: UserRole,
     ) => Promise<{ success: boolean; error?: string }>;
     register: (
         name: string,
@@ -37,24 +36,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const [loading, setLoading] = useState(true);
     const supabase = createClient();
 
-    const fetchProfile = async (authId: string): Promise<User | null> => {
-        // Get the auth user's email first
-        const {
-            data: { user: authUser },
-        } = await supabase.auth.getUser();
-        if (!authUser?.email) return null;
-
-        const { data, error } = await supabase
-            .from("users")
-            .select("*")
-            .eq("email", authUser.email)
-            .single();
-
-        if (error?.code === "PGRST116") return null;
-        return (data as User) ?? null;
-    };
-
     useEffect(() => {
+        const fetchProfile = async (authId: string): Promise<User | null> => {
+            const { data, error } = await supabase
+                .from("users")
+                .select("*")
+                .eq("id", authId)
+                .maybeSingle();
+
+            if (error) return null;
+            return (data as User) ?? null;
+        };
+
         // onAuthStateChange fires after session is rehydrated from cookies —
         // this is the only reliable place to read auth state on the client.
         const {
@@ -70,9 +63,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [supabase]);
 
-    const login = async (email: string, password: string, _role: UserRole) => {
+    const login = async (email: string, password: string) => {
         const result = await signIn(email, password);
         if (result.error) return { success: false, error: result.error };
         // onAuthStateChange will fire and set the user automatically
