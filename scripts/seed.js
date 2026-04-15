@@ -22,6 +22,7 @@ function nextWeekday(dayOffset, hour) {
 
 async function clearTables() {
     const tables = [
+        "favorites",
         "appointments",
         "timeslots",
         "services",
@@ -225,52 +226,63 @@ async function seed() {
         const [sarah, mike, emma] = employees;
 
         // ---------- SERVICES ----------
-        const { error: serviceError } = await supabase.from("services").insert([
-            {
-                business_id: salon.id,
-                name: "Hair Cut",
-                duration: 30,
-                price: "$45",
-                description: "Professional haircut with styling",
-            },
-            {
-                business_id: salon.id,
-                name: "Hair Coloring",
-                duration: 90,
-                price: "$120",
-                description: "Full hair coloring service",
-            },
-            {
-                business_id: gym.id,
-                name: "Personal Training",
-                duration: 60,
-                price: "$75",
-                description: "1-on-1 personal training",
-            },
-            {
-                business_id: gym.id,
-                name: "Group Fitness Class",
-                duration: 45,
-                price: "$25",
-                description: "Group fitness class with trainer",
-            },
-            {
-                business_id: yoga.id,
-                name: "Hatha Yoga Class",
-                duration: 60,
-                price: "$20",
-                description: "Traditional Hatha yoga practice",
-            },
-            {
-                business_id: yoga.id,
-                name: "Meditation Session",
-                duration: 45,
-                price: "$15",
-                description: "Guided meditation session",
-            },
-        ]);
+        const { data: servicesData, error: serviceError } = await supabase
+            .from("services")
+            .insert([
+                {
+                    business_id: salon.id,
+                    name: "Hair Cut",
+                    duration: 30,
+                    price: "$45",
+                    description: "Professional haircut with styling",
+                },
+                {
+                    business_id: salon.id,
+                    name: "Hair Coloring",
+                    duration: 90,
+                    price: "$120",
+                    description: "Full hair coloring service",
+                },
+                {
+                    business_id: gym.id,
+                    name: "Personal Training",
+                    duration: 60,
+                    price: "$75",
+                    description: "1-on-1 personal training",
+                },
+                {
+                    business_id: gym.id,
+                    name: "Group Fitness Class",
+                    duration: 45,
+                    price: "$25",
+                    description: "Group fitness class with trainer",
+                },
+                {
+                    business_id: yoga.id,
+                    name: "Hatha Yoga Class",
+                    duration: 60,
+                    price: "$20",
+                    description: "Traditional Hatha yoga practice",
+                },
+                {
+                    business_id: yoga.id,
+                    name: "Meditation Session",
+                    duration: 45,
+                    price: "$15",
+                    description: "Guided meditation session",
+                },
+            ])
+            .select();
         if (serviceError)
             throw new Error(`Services insert failed: ${serviceError.message}`);
+
+        // Build a per-business service list for appointment mapping
+        const servicesByBusiness = {};
+        for (const svc of servicesData) {
+            if (!servicesByBusiness[svc.business_id])
+                servicesByBusiness[svc.business_id] = [];
+            servicesByBusiness[svc.business_id].push(svc);
+        }
 
         // ---------- TIMESLOTS ----------
         const timeslots = [
@@ -475,17 +487,30 @@ async function seed() {
             "CONFIRMED",
             "PENDING",
             "CONFIRMED",
-            "CONFIRMED",
+            "CANCELLED",
         ];
+        const serviceIndices = {};
         const appointments = timeslotData
             .filter((slot) => slot.is_booked)
-            .map((slot, i) => ({
-                slot_id: slot.id,
-                client_id: slot.booked_by,
-                business_id: slot.business_id,
-                employee_id: slot.employee_id,
-                status: statuses[i % statuses.length],
-            }));
+            .map((slot, i) => {
+                const bizServices = servicesByBusiness[slot.business_id] || [];
+                const svcIdx =
+                    (serviceIndices[slot.business_id] ?? 0) %
+                    (bizServices.length || 1);
+                serviceIndices[slot.business_id] = svcIdx + 1;
+                const status = statuses[i % statuses.length];
+                return {
+                    slot_id: slot.id,
+                    client_id: slot.booked_by,
+                    business_id: slot.business_id,
+                    employee_id: slot.employee_id,
+                    service_id: bizServices[svcIdx]?.id ?? null,
+                    status,
+                    ...(status === "CANCELLED" && {
+                        cancellation_reason: "Schedule conflict",
+                    }),
+                };
+            });
 
         const { error: appointmentError } = await supabase
             .from("appointments")
@@ -495,6 +520,15 @@ async function seed() {
                 `Appointments insert failed: ${appointmentError.message}`,
             );
 
+        // ---------- FAVORITES ----------
+        const { error: favError } = await supabase.from("favorites").insert([
+            { client_id: client1.id, business_id: salon.id },
+            { client_id: client1.id, business_id: gym.id },
+            { client_id: client2.id, business_id: yoga.id },
+        ]);
+        if (favError)
+            throw new Error(`Favorites insert failed: ${favError.message}`);
+
         console.log("✅ Done!");
         console.log(`   Users:        5`);
         console.log(`   Businesses:   ${businesses.length}`);
@@ -502,6 +536,7 @@ async function seed() {
         console.log(`   Services:     6`);
         console.log(`   Timeslots:    ${timeslots.length}`);
         console.log(`   Appointments: ${appointments.length}`);
+        console.log(`   Favorites:    3`);
         console.log("\n🔑 Test credentials (all passwords: password123)");
         console.log("   owner1@test.com  — Salon Owner (BUSINESS)");
         console.log("   owner2@test.com  — Gym Owner   (BUSINESS)");

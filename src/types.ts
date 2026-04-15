@@ -49,8 +49,37 @@ export interface Appointment {
   clientId: string;
   businessId: string;
   employeeId: string;
+  serviceId?: string | null;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  cancellationReason?: string | null;
   createdAt: string;
+}
+
+export interface AppointmentWithRelations {
+  id: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  cancellation_reason: string | null;
+  created_at: string;
+  slot: { start_time: string; end_time: string };
+  business: { id: string; name: string; logo: string };
+  employee: { name: string; role: string };
+  service: { name: string; price: string; duration: number } | null;
+}
+
+export interface Favorite {
+  id: string;
+  client_id: string;
+  business_id: string;
+  created_at: string;
+  business?: {
+    id: string;
+    name: string;
+    description: string;
+    category: string;
+    address: string;
+    logo: string;
+    rating: number;
+  };
 }
 
 export interface Service {

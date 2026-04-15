@@ -7,7 +7,7 @@ import { useNotifications } from "@/src/context/NotificationContext";
 import { Employee, Service, TimeSlot } from "@/src/types";
 import BookingConfirmationModal from "../shared/ConfirmationModal";
 
-import { CheckCircle, Clock, MapPin, Star, X } from "lucide-react";
+import { CheckCircle, Clock, Heart, MapPin, Star, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button, Card } from "../ui";
 import { format } from "date-fns";
@@ -36,6 +36,43 @@ const Business = (data: BusinessPayload | null) => {
     // State for the confirmation modal
     const [slotToConfirm, setSlotToConfirm] = useState<TimeSlot | null>(null);
     const [bookingConfirmed, setBookingConfirmed] = useState(false);
+
+    // Favorites state
+    const [isFav, setIsFav] = useState(false);
+    const [favLoading, setFavLoading] = useState(false);
+
+    // Fetch initial favorite status
+    useEffect(() => {
+        if (!user || !data) return;
+        const supabase = createClient();
+        supabase
+            .from("favorites")
+            .select("id")
+            .eq("client_id", user.id)
+            .eq("business_id", data.id)
+            .maybeSingle()
+            .then(({ data: fav }) => setIsFav(!!fav));
+    }, [user, data]);
+
+    const toggleFavorite = async () => {
+        if (!user || favLoading || !data) return;
+        setFavLoading(true);
+        const supabase = createClient();
+        if (isFav) {
+            await supabase
+                .from("favorites")
+                .delete()
+                .eq("client_id", user.id)
+                .eq("business_id", data.id);
+            setIsFav(false);
+        } else {
+            await supabase
+                .from("favorites")
+                .insert({ client_id: user.id, business_id: data.id });
+            setIsFav(true);
+        }
+        setFavLoading(false);
+    };
 
     // SEO Meta Tags Injection
     useEffect(() => {
@@ -146,6 +183,7 @@ const Business = (data: BusinessPayload | null) => {
                 client_id: user.id,
                 business_id: data.id,
                 employee_id: selectedEmployee.id,
+                service_id: selectedService.id,
                 status: "PENDING",
             });
 
@@ -245,6 +283,22 @@ const Business = (data: BusinessPayload | null) => {
                             <span className="flex items-center gap-2 bg-red-50 text-red-700 px-3 py-1.5 rounded-lg border border-red-100 font-bold uppercase tracking-widest text-[10px]">
                                 {data.category}
                             </span>
+                            {user && (
+                                <button
+                                    onClick={toggleFavorite}
+                                    disabled={favLoading}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm font-semibold transition-all ${
+                                        isFav
+                                            ? "bg-red-50 border-red-200 text-red-600"
+                                            : "bg-white border-gray-100 text-gray-500 hover:border-red-200 hover:text-red-500"
+                                    }`}
+                                >
+                                    <Heart
+                                        className={`w-4 h-4 ${isFav ? "fill-current" : ""}`}
+                                    />
+                                    {isFav ? "Saved" : "Save"}
+                                </button>
+                            )}
                         </div>
                         <p className="text-lg text-gray-500 leading-relaxed max-w-2xl font-medium">
                             {data.description}

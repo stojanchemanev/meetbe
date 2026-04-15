@@ -1,4 +1,5 @@
 -- DROP (reverse dependency order)
+DROP TABLE IF EXISTS favorites CASCADE;
 DROP TABLE IF EXISTS appointments CASCADE;
 DROP TABLE IF EXISTS timeslots CASCADE;
 DROP TABLE IF EXISTS services CASCADE;
@@ -75,9 +76,20 @@ CREATE TABLE appointments (
   client_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
   employee_id UUID NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
+  service_id UUID REFERENCES services(id) ON DELETE SET NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'CONFIRMED', 'CANCELLED')),
+  cancellation_reason TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- FAVORITES
+CREATE TABLE favorites (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT favorites_unique UNIQUE(client_id, business_id)
 );
 
 -- INDEXES
@@ -95,3 +107,6 @@ CREATE INDEX idx_appointments_client_id ON appointments(client_id);
 CREATE INDEX idx_appointments_business_id ON appointments(business_id);
 CREATE INDEX idx_appointments_employee_id ON appointments(employee_id);
 CREATE INDEX idx_appointments_status ON appointments(status);
+CREATE INDEX idx_appointments_service_id ON appointments(service_id);
+CREATE INDEX idx_favorites_client_id ON favorites(client_id);
+CREATE INDEX idx_favorites_business_id ON favorites(business_id);
