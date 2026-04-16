@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
+import { PLAN_LIMITS, PLAN_LIMIT_ERROR } from "@/src/lib/plans";
 
 export async function getEmployees(businessId: string) {
     try {
@@ -39,11 +40,21 @@ export async function createEmployee(
 
         const { data: business } = await supabase
             .from("businesses")
-            .select("owner_id")
+            .select("owner_id, plan")
             .eq("id", businessId)
             .single();
 
         if (business?.owner_id !== user.id) return { error: "Unauthorized" };
+
+        const plan = (business?.plan ?? "free") as "free" | "growth";
+        const limit = PLAN_LIMITS[plan].employees;
+        if (limit !== Infinity) {
+            const { count } = await supabase
+                .from("employees")
+                .select("*", { count: "exact", head: true })
+                .eq("business_id", businessId);
+            if ((count ?? 0) >= limit) return { error: PLAN_LIMIT_ERROR };
+        }
 
         const { data, error } = await supabase
             .from("employees")

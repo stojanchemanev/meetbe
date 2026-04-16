@@ -32,6 +32,9 @@ import {
     getEmployeeServicesMap,
 } from "@/app/actions/services";
 import { Service } from "@/src/types";
+import UpgradeModal from "@/src/components/UpgradeModal";
+import { PLAN_LIMIT_ERROR } from "@/src/lib/plans";
+import type { Plan } from "@/src/lib/plans";
 
 // Raw shape returned by Supabase (snake_case column names)
 type DBEmployee = {
@@ -106,7 +109,14 @@ export default function ServicesPage() {
     const router = useRouter();
 
     const [businessId, setBusinessId] = useState<string | null>(null);
+    const [plan, setPlan] = useState<Plan>("free");
     const [pageLoading, setPageLoading] = useState(true);
+
+    // Upgrade modal
+    const [upgradeOpen, setUpgradeOpen] = useState(false);
+    const [upgradeType, setUpgradeType] = useState<
+        "services" | "employees" | "clients"
+    >("services");
 
     const [employees, setEmployees] = useState<DBEmployee[]>([]);
     const [services, setServices] = useState<Service[]>([]);
@@ -157,6 +167,7 @@ export default function ServicesPage() {
             }
 
             setBusinessId(business.id);
+            setPlan((business.plan as Plan) ?? "free");
 
             const [empRes, svcRes, mapRes] = await Promise.all([
                 getEmployees(business.id),
@@ -236,7 +247,12 @@ export default function ServicesPage() {
         );
 
         if (result.error) {
-            setEmpError(result.error);
+            if (result.error === PLAN_LIMIT_ERROR) {
+                setUpgradeType("employees");
+                setUpgradeOpen(true);
+            } else {
+                setEmpError(result.error);
+            }
         } else if (result.data) {
             setEmployees((prev) => [...prev, result.data as DBEmployee]);
             setEmpName("");
@@ -274,7 +290,12 @@ export default function ServicesPage() {
         );
 
         if (result.error) {
-            setSvcError(result.error);
+            if (result.error === PLAN_LIMIT_ERROR) {
+                setUpgradeType("services");
+                setUpgradeOpen(true);
+            } else {
+                setSvcError(result.error);
+            }
         } else if (result.data) {
             const newService = result.data as Service;
             setServices((prev) => [...prev, newService]);
@@ -357,10 +378,21 @@ export default function ServicesPage() {
                         <ArrowLeft className="w-4 h-4" />
                     </Button>
                 </Link>
-                <div>
-                    <h1 className="text-2xl font-extrabold text-gray-900">
-                        Services &amp; Staff
-                    </h1>
+                <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-2xl font-extrabold text-gray-900">
+                            Services &amp; Staff
+                        </h1>
+                        <span
+                            className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                                plan === "growth"
+                                    ? "bg-red-500 text-white"
+                                    : "bg-gray-100 text-gray-500"
+                            }`}
+                        >
+                            {plan === "growth" ? "Growth" : "Free"}
+                        </span>
+                    </div>
                     <p className="text-sm text-gray-500 mt-0.5">
                         Manage what you offer and who delivers it.
                     </p>
@@ -815,6 +847,14 @@ export default function ServicesPage() {
 
             {/* Bottom spacer */}
             <div className="h-12" />
+
+            <UpgradeModal
+                isOpen={upgradeOpen}
+                onClose={() => setUpgradeOpen(false)}
+                limitType={upgradeType}
+                userEmail={user?.email ?? ""}
+                businessId={businessId ?? ""}
+            />
         </main>
     );
 }

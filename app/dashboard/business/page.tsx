@@ -1,14 +1,17 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Users, Briefcase, BarChart2, Calendar, Tag, Settings } from "lucide-react";
+import { Users, Briefcase, BarChart2, Calendar, Tag, Settings, Zap } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Card, Button } from "@/src/components/ui";
+import { getUserBusiness } from "@/app/actions/businesses";
+import type { Plan } from "@/src/lib/plans";
 
 export default function BusinessDashboard() {
     const { user, loading } = useAuth();
     const router = useRouter();
+    const [plan, setPlan] = useState<Plan>("free");
 
     useEffect(() => {
         if (!loading && !user) {
@@ -16,17 +19,36 @@ export default function BusinessDashboard() {
         }
     }, [user, loading, router]);
 
+    useEffect(() => {
+        if (!user) return;
+        getUserBusiness().then(({ business }) => {
+            if (business?.plan) setPlan(business.plan as Plan);
+        });
+    }, [user]);
+
     if (loading || !user) return null;
 
     return (
         <main className="max-w-4xl mx-auto px-6 py-12">
-            <div className="mb-10">
-                <h1 className="text-3xl font-extrabold text-gray-900">
-                    Business Dashboard
-                </h1>
-                <p className="text-gray-500 mt-1">
-                    Manage your services, staff, and bookings.
-                </p>
+            <div className="mb-10 flex items-start justify-between gap-4 flex-wrap">
+                <div>
+                    <h1 className="text-3xl font-extrabold text-gray-900">
+                        Business Dashboard
+                    </h1>
+                    <p className="text-gray-500 mt-1">
+                        Manage your services, staff, and bookings.
+                    </p>
+                </div>
+                <span
+                    className={`flex items-center gap-1.5 text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${
+                        plan === "growth"
+                            ? "bg-red-500 text-white"
+                            : "bg-gray-100 text-gray-500"
+                    }`}
+                >
+                    {plan === "growth" && <Zap className="w-3 h-3" />}
+                    {plan === "growth" ? "Growth Plan" : "Free Plan"}
+                </span>
             </div>
 
             <div className="grid sm:grid-cols-3 gap-4 mb-10">
