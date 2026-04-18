@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, { useState, useEffect, useMemo, createContext, useContext } from "react";
 import { User, UserRole, EmployeeLink } from "../types";
 import { signUp } from "@/app/actions/auth";
 import { createClient } from "@/utils/supabase/client";
@@ -18,6 +18,7 @@ interface AuthContextType {
         role: UserRole,
     ) => Promise<{ success: boolean; error?: string }>;
     logout: () => Promise<void>;
+    refreshUser: () => Promise<void>;
     loading: boolean;
 }
 
@@ -36,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const [user, setUser] = useState<User | null>(null);
     const [employeeLinks, setEmployeeLinks] = useState<EmployeeLink[]>([]);
     const [loading, setLoading] = useState(true);
-    const supabase = createClient();
+    const supabase = useMemo(() => createClient(), []);
 
     useEffect(() => {
         const fetchProfile = async (authId: string): Promise<User | null> => {
@@ -127,9 +128,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         return { success: true };
     };
 
+    const refreshUser = async () => {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) return;
+        const { data, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", authUser.id)
+            .maybeSingle();
+        if (!error && data) setUser(data as User);
+    };
+
     return (
         <AuthContext.Provider
-            value={{ user, employeeLinks, login, register, logout, loading }}
+            value={{ user, employeeLinks, login, register, logout, refreshUser, loading }}
         >
             {children}
         </AuthContext.Provider>

@@ -41,6 +41,7 @@ const Page = () => {
             return;
         }
 
+        setSubmitting(false);
         router.push("/");
     };
 

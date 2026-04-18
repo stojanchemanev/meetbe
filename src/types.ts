@@ -11,6 +11,11 @@ export interface User {
   name: string;
   role: UserRole;
   avatar?: string;
+  phone?: string;
+  age?: number;
+  sex?: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
+  address?: string;
+  city?: string;
 }
 
 export interface Business {

@@ -58,14 +58,14 @@ INSERT INTO auth.users (
    '', '', '', '', '', 0, '', '', '', false);
 
 -- ── 2. PUBLIC USERS ──────────────────────────────────────────
-INSERT INTO users (id, email, name, role) VALUES
-  ('00000001-0000-0000-0000-000000000001', 'owner1@test.com',  'Salon Owner',   'BUSINESS'),
-  ('00000001-0000-0000-0000-000000000002', 'owner2@test.com',  'Gym Owner',     'BUSINESS'),
-  ('00000001-0000-0000-0000-000000000003', 'owner3@test.com',  'Yoga Owner',    'BUSINESS'),
-  ('00000002-0000-0000-0000-000000000001', 'client1@test.com', 'John Client',   'CLIENT'),
-  ('00000002-0000-0000-0000-000000000002', 'client2@test.com', 'Jane Client',   'CLIENT'),
-  ('00000003-0000-0000-0000-000000000001', 'emp1@test.com',    'Sarah Johnson', 'CLIENT'),
-  ('00000003-0000-0000-0000-000000000002', 'emp2@test.com',    'Mike Chen',     'CLIENT');
+INSERT INTO users (id, email, name, role, phone, age, sex, address, city, avatar) VALUES
+  ('00000001-0000-0000-0000-000000000001', 'owner1@test.com',  'Salon Owner',   'BUSINESS', NULL, NULL, NULL, NULL, NULL, NULL),
+  ('00000001-0000-0000-0000-000000000002', 'owner2@test.com',  'Gym Owner',     'BUSINESS', NULL, NULL, NULL, NULL, NULL, NULL),
+  ('00000001-0000-0000-0000-000000000003', 'owner3@test.com',  'Yoga Owner',    'BUSINESS', NULL, NULL, NULL, NULL, NULL, NULL),
+  ('00000002-0000-0000-0000-000000000001', 'client1@test.com', 'John Client',   'CLIENT',   '+1 555 010 0001', 32, 'MALE',   '10 Oak Avenue',    'New York',   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300'),
+  ('00000002-0000-0000-0000-000000000002', 'client2@test.com', 'Jane Client',   'CLIENT',   '+1 555 020 0002', 27, 'FEMALE', '22 Maple Street',  'Los Angeles', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300'),
+  ('00000003-0000-0000-0000-000000000001', 'emp1@test.com',    'Sarah Johnson', 'CLIENT',   NULL, NULL, NULL, NULL, NULL, 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300'),
+  ('00000003-0000-0000-0000-000000000002', 'emp2@test.com',    'Mike Chen',     'CLIENT',   NULL, NULL, NULL, NULL, NULL, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300');
 
 -- ── 3. BUSINESSES ────────────────────────────────────────────
 INSERT INTO businesses (id, owner_id, name, description, category, address, logo, rating) VALUES

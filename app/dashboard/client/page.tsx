@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Calendar, Heart, Search, User as UserIcon } from "lucide-react";
+import { Calendar, ChevronRight, Heart, Search, User as UserIcon } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Card, Button } from "@/src/components/ui";
@@ -65,6 +65,19 @@ export default function ClientDashboard() {
 
     if (loading || !user) return null;
 
+    const profileFields = [
+        user.name,
+        user.avatar,
+        user.phone,
+        user.age,
+        user.sex,
+        user.address,
+        user.city,
+    ];
+    const profileCompletion = Math.round(
+        (profileFields.filter(Boolean).length / profileFields.length) * 100,
+    );
+
     const now = new Date();
     const upcoming = appointments
         .filter(
@@ -117,13 +130,23 @@ export default function ClientDashboard() {
                     <p className="text-sm text-gray-500 mt-1">Total bookings</p>
                 </Card>
 
-                <Card className="p-6 border-gray-100">
-                    <UserIcon className="w-5 h-5 text-red-500 mb-3" />
-                    <p className="text-2xl font-extrabold text-gray-900">80%</p>
-                    <p className="text-sm text-gray-500 mt-1">
-                        Profile completion
-                    </p>
-                </Card>
+                <Link href="/dashboard/client/profile">
+                    <Card className="p-6 border-gray-100 hover:border-red-200 transition-colors cursor-pointer">
+                        <UserIcon className="w-5 h-5 text-red-500 mb-3" />
+                        <p className="text-2xl font-extrabold text-gray-900">
+                            {profileCompletion}%
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Profile completion
+                        </p>
+                        {profileCompletion < 100 && (
+                            <p className="text-xs text-red-500 font-semibold mt-2 flex items-center gap-0.5">
+                                Complete profile
+                                <ChevronRight className="w-3 h-3" />
+                            </p>
+                        )}
+                    </Card>
+                </Link>
             </div>
 
             {/* Favorites shortcut */}

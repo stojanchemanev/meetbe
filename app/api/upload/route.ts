@@ -7,15 +7,15 @@ import { v4 as uuidv4 } from "uuid";
 //   AWS_REGION
 //   AWS_ACCESS_KEY_ID
 //   AWS_SECRET_ACCESS_KEY
-//   AWS_S3_BUCKET_NAME
+//   AWS_BUCKET_NAME
 //
 // Install: npm i @aws-sdk/client-s3 @aws-sdk/s3-request-presigner
 
 const s3 = new S3Client({
     region: process.env.AWS_REGION!,
     credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+        accessKeyId: process.env.AWS_ACCESS_KEY!,
+        secretAccessKey: process.env.AWS_SECRET_KEY!,
     },
 });
 
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
         const ext = filename.split(".").pop()?.toLowerCase() ?? "jpg";
         const key = `${folder}/${uuidv4()}.${ext}`;
-        const bucket = process.env.AWS_S3_BUCKET_NAME!;
+        const bucket = process.env.AWS_BUCKET_NAME!;
 
         const command = new PutObjectCommand({
             Bucket: bucket,
