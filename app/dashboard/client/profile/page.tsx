@@ -54,8 +54,7 @@ export default function ClientProfilePage() {
     const [saved, setSaved] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
+    const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [age, setAge] = useState("");
     const [sex, setSex] = useState("");
@@ -76,9 +75,7 @@ export default function ClientProfilePage() {
         getClientProfile().then(({ data }) => {
             if (data) {
                 const profile = data as User;
-                const parts = (profile.name ?? "").split(" ");
-                setFirstName(parts[0] ?? "");
-                setLastName(parts.slice(1).join(" "));
+                setName(profile.name ?? "");
                 setPhone(profile.phone ?? "");
                 setAge(profile.age != null ? String(profile.age) : "");
                 setSex(profile.sex ?? "");
@@ -101,8 +98,8 @@ export default function ClientProfilePage() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!firstName.trim()) {
-            setError("First name is required.");
+        if (!name.trim()) {
+            setError("Name is required.");
             return;
         }
 
@@ -120,8 +117,7 @@ export default function ClientProfilePage() {
         }
 
         const result = await updateClientProfile({
-            firstName: firstName.trim(),
-            lastName: lastName.trim(),
+            name: name.trim(),
             phone: phone.trim() || undefined,
             age: age ? parseInt(age, 10) : null,
             sex: sex || null,
@@ -245,34 +241,18 @@ export default function ClientProfilePage() {
                         Personal Details
                     </h2>
                     <div className="space-y-4">
-                        <div className="grid sm:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                    First Name{" "}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    value={firstName}
-                                    onChange={(e) =>
-                                        setFirstName(e.target.value)
-                                    }
-                                    placeholder="e.g. Jane"
-                                    className={inputClass}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                    Last Name
-                                </label>
-                                <input
-                                    type="text"
-                                    value={lastName}
-                                    onChange={(e) => setLastName(e.target.value)}
-                                    placeholder="e.g. Smith"
-                                    className={inputClass}
-                                />
-                            </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                                Full Name{" "}
+                                <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="e.g. Jane Smith"
+                                className={inputClass}
+                            />
                         </div>
 
                         <div>
