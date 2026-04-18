@@ -58,7 +58,7 @@ async function uploadLogoToS3(file: File): Promise<string | null> {
 }
 
 export default function BusinessSetupPage() {
-    const { user, loading } = useAuth();
+    const { user, loading, isAuthenticated } = useAuth();
     const router = useRouter();
 
     const [businessId, setBusinessId] = useState<string | null>(null);
@@ -78,8 +78,8 @@ export default function BusinessSetupPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if (!loading && !user) router.push("/login");
-    }, [user, loading, router]);
+        if (isAuthenticated === false) router.push("/login");
+    }, [isAuthenticated, router]);
 
     useEffect(() => {
         if (!user) return;

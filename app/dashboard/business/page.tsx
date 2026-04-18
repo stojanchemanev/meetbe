@@ -9,15 +9,15 @@ import { getUserBusiness } from "@/app/actions/businesses";
 import type { Plan } from "@/src/lib/plans";
 
 export default function BusinessDashboard() {
-    const { user, loading } = useAuth();
+    const { user, loading, isAuthenticated } = useAuth();
     const router = useRouter();
     const [plan, setPlan] = useState<Plan>("free");
 
     useEffect(() => {
-        if (!loading && !user) {
+        if (isAuthenticated === false) {
             router.push("/login");
         }
-    }, [user, loading, router]);
+    }, [isAuthenticated, router]);
 
     useEffect(() => {
         if (!user) return;
@@ -26,7 +26,17 @@ export default function BusinessDashboard() {
         });
     }, [user]);
 
-    if (loading || !user) return null;
+    if (loading || !user) return (
+        <main className="max-w-4xl mx-auto px-6 py-12">
+            <div className="animate-pulse space-y-6">
+                <div className="h-8 bg-gray-100 rounded w-1/3" />
+                <div className="grid sm:grid-cols-3 gap-4">
+                    {[1,2,3].map(i => <div key={i} className="h-32 bg-gray-100 rounded-xl" />)}
+                </div>
+                <div className="h-64 bg-gray-100 rounded-xl" />
+            </div>
+        </main>
+    );
 
     return (
         <main className="max-w-4xl mx-auto px-6 py-12">

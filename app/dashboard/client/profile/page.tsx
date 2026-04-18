@@ -46,7 +46,7 @@ async function uploadAvatarToS3(file: File): Promise<string | null> {
 }
 
 export default function ClientProfilePage() {
-    const { user, loading, refreshUser } = useAuth();
+    const { user, loading, isAuthenticated, refreshUser } = useAuth();
     const router = useRouter();
 
     const [pageLoading, setPageLoading] = useState(true);
@@ -67,8 +67,8 @@ export default function ClientProfilePage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if (!loading && !user) router.push("/login");
-    }, [user, loading, router]);
+        if (isAuthenticated === false) router.push("/login");
+    }, [isAuthenticated, router]);
 
     useEffect(() => {
         if (!user) return;

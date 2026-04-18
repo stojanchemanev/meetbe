@@ -105,7 +105,7 @@ function Toggle({
 
 // ─── Main page ─────────────────────────────────────────────────────────────────
 export default function ServicesPage() {
-    const { user, loading } = useAuth();
+    const { user, loading, isAuthenticated } = useAuth();
     const router = useRouter();
 
     const [businessId, setBusinessId] = useState<string | null>(null);
@@ -154,8 +154,8 @@ export default function ServicesPage() {
     const [togglingLink, setTogglingLink] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!loading && !user) router.push("/login");
-    }, [user, loading, router]);
+        if (isAuthenticated === false) router.push("/login");
+    }, [isAuthenticated, router]);
 
     useEffect(() => {
         if (!user) return;

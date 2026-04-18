@@ -10,7 +10,7 @@ import { getFavorites, removeFavorite } from "@/app/actions/favorites";
 import { Favorite } from "@/src/types";
 
 export default function FavoritesPage() {
-    const { user, loading } = useAuth();
+    const { user, loading, isAuthenticated } = useAuth();
     const router = useRouter();
 
     const [favorites, setFavorites] = useState<Favorite[]>([]);
@@ -18,10 +18,10 @@ export default function FavoritesPage() {
     const [removing, setRemoving] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!loading && !user) {
+        if (isAuthenticated === false) {
             router.push("/login");
         }
-    }, [user, loading, router]);
+    }, [isAuthenticated, router]);
 
     useEffect(() => {
         if (!user) return;
@@ -42,7 +42,15 @@ export default function FavoritesPage() {
         setRemoving(null);
     };
 
-    if (loading || !user) return null;
+    if (loading || !user) return (
+        <main className="max-w-4xl mx-auto px-6 py-12">
+            <div className="animate-pulse space-y-4">
+                <div className="h-8 bg-gray-100 rounded w-1/3" />
+                <div className="h-48 bg-gray-100 rounded-xl" />
+                <div className="h-48 bg-gray-100 rounded-xl" />
+            </div>
+        </main>
+    );
 
     return (
         <main className="max-w-4xl mx-auto px-6 py-12">

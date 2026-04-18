@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 interface AuthContextType {
     user: User | null;
     employeeLinks: EmployeeLink[];
+    isAuthenticated: boolean | null; // null = checking, true/false = known
     login: (
         email: string,
         password: string,
@@ -19,7 +20,7 @@ interface AuthContextType {
     ) => Promise<{ success: boolean; error?: string }>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
-    loading: boolean;
+    loading: boolean; // true while auth state is unknown
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,8 +37,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
     const [user, setUser] = useState<User | null>(null);
     const [employeeLinks, setEmployeeLinks] = useState<EmployeeLink[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const supabase = useMemo(() => createClient(), []);
+
+    const loading = isAuthenticated === null;
 
     useEffect(() => {
         const fetchProfile = async (authId: string): Promise<User | null> => {
@@ -81,6 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (session?.user) {
+                setIsAuthenticated(true); // loading becomes false immediately
                 const [profile, links] = await Promise.all([
                     fetchProfile(session.user.id),
                     fetchEmployeeLinks(session.user.id),
@@ -88,10 +92,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
                 setUser(profile);
                 setEmployeeLinks(links);
             } else {
+                setIsAuthenticated(false);
                 setUser(null);
                 setEmployeeLinks([]);
             }
-            setLoading(false);
         });
 
         return () => subscription.unsubscribe();
@@ -141,7 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     return (
         <AuthContext.Provider
-            value={{ user, employeeLinks, login, register, logout, refreshUser, loading }}
+            value={{ user, employeeLinks, isAuthenticated, login, register, logout, refreshUser, loading }}
         >
             {children}
         </AuthContext.Provider>
