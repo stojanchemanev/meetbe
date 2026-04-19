@@ -1,7 +1,7 @@
 export type Plan = "free" | "growth";
 
 export const PLAN_LIMITS = {
-    free: { services: 3, employees: 1, clients: 10 },
+    free: { services: 3, employees: 2, clients: 10 },
     growth: { services: Infinity, employees: Infinity, clients: Infinity },
 } as const;
 

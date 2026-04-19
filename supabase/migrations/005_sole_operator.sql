@@ -1,0 +1,2 @@
+ALTER TABLE businesses
+  ADD COLUMN IF NOT EXISTS sole_operator BOOLEAN NOT NULL DEFAULT false;

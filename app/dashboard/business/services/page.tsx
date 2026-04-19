@@ -16,7 +16,7 @@ import {
 import { useAuth } from "@/src/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Card, Button } from "@/src/components/ui";
-import { getUserBusiness } from "@/app/actions/businesses";
+import { getUserBusiness, updateSoleOperator } from "@/app/actions/businesses";
 import {
     getEmployees,
     createEmployee,
@@ -113,10 +113,9 @@ export default function ServicesPage() {
     const [pageLoading, setPageLoading] = useState(true);
 
     // Upgrade modal
-    const [upgradeOpen, setUpgradeOpen] = useState(false);
     const [upgradeType, setUpgradeType] = useState<
-        "services" | "employees" | "clients"
-    >("services");
+        "services" | "employees" | "clients" | null
+    >(null);
 
     const [employees, setEmployees] = useState<DBEmployee[]>([]);
     const [services, setServices] = useState<Service[]>([]);
@@ -168,6 +167,8 @@ export default function ServicesPage() {
 
             setBusinessId(business.id);
             setPlan((business.plan as Plan) ?? "free");
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            setSoleOperator(!!(business as any).sole_operator);
 
             const [empRes, svcRes, mapRes] = await Promise.all([
                 getEmployees(business.id),
@@ -180,15 +181,8 @@ export default function ServicesPage() {
             setServices((svcRes.data as Service[]) ?? []);
             setEmpByService(mapRes.data ?? {});
 
-            // Detect sole-operator mode: only 1 employee and it's the owner
             const ownerEmp = empList.find((e) => e.user_id === user.id);
-            const hasOtherEmployees = empList.some((e) => e.user_id !== user.id);
-            if (ownerEmp && !hasOtherEmployees) {
-                setSoleOperator(true);
-                setOwnerEmployeeId(ownerEmp.id);
-            } else if (ownerEmp) {
-                setOwnerEmployeeId(ownerEmp.id);
-            }
+            if (ownerEmp) setOwnerEmployeeId(ownerEmp.id);
 
             setPageLoading(false);
         })();
@@ -198,9 +192,9 @@ export default function ServicesPage() {
     const handleSoleOperatorToggle = async (val: boolean) => {
         if (!businessId) return;
         setSoleOperator(val);
+        setTogglingMode(true);
 
         if (val && !ownerEmployeeId) {
-            setTogglingMode(true);
             const result = await getOrCreateOwnerEmployee(businessId);
             if (result.success && result.data) {
                 const emp = result.data as DBEmployee;
@@ -210,8 +204,10 @@ export default function ServicesPage() {
                     return [...prev, emp];
                 });
             }
-            setTogglingMode(false);
         }
+
+        await updateSoleOperator(businessId, val);
+        setTogglingMode(false);
     };
 
     // ── Employee CRUD ───────────────────────────────────────────────────────
@@ -249,7 +245,6 @@ export default function ServicesPage() {
         if (result.error) {
             if (result.error === PLAN_LIMIT_ERROR) {
                 setUpgradeType("employees");
-                setUpgradeOpen(true);
             } else {
                 setEmpError(result.error);
             }
@@ -292,7 +287,6 @@ export default function ServicesPage() {
         if (result.error) {
             if (result.error === PLAN_LIMIT_ERROR) {
                 setUpgradeType("services");
-                setUpgradeOpen(true);
             } else {
                 setSvcError(result.error);
             }
@@ -849,9 +843,9 @@ export default function ServicesPage() {
             <div className="h-12" />
 
             <UpgradeModal
-                isOpen={upgradeOpen}
-                onClose={() => setUpgradeOpen(false)}
-                limitType={upgradeType}
+                isOpen={upgradeType !== null}
+                onClose={() => setUpgradeType(null)}
+                limitType={upgradeType ?? "services"}
                 userEmail={user?.email ?? ""}
                 businessId={businessId ?? ""}
             />
