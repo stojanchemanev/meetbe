@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, AlertCircle } from "lucide-react";
+import { ArrowLeft, AlertCircle, Sunrise, Sunset, Clock } from "lucide-react";
 import { Calendar, dateFnsLocalizer, View, SlotInfo, EventProps } from "react-big-calendar";
-import { format, parse, startOfWeek, getDay, startOfDay, endOfDay, startOfMonth, endOfMonth } from "date-fns";
+import { format, parse, startOfWeek, getDay, startOfDay, endOfDay, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useAuth } from "@/src/context/AuthContext";
@@ -134,6 +134,72 @@ function getVisibleRange(view: View, date: Date): { start: Date; end: Date } {
     end.setDate(start.getDate() + 6);
     end.setHours(23, 59, 59, 999);
     return { start, end };
+}
+
+type TemplateRange = { from: number; to: number };
+
+const TEMPLATES: {
+    id: string;
+    label: string;
+    description: string;
+    subtitle: string;
+    icon: React.ReactNode;
+    ranges: TemplateRange[];
+}[] = [
+    {
+        id: "morning",
+        label: "Morning Shift",
+        description: "8:00 AM – 4:00 PM",
+        subtitle: "8 hourly slots per day",
+        icon: <Sunrise className="w-5 h-5" />,
+        ranges: [{ from: 8, to: 16 }],
+    },
+    {
+        id: "afternoon",
+        label: "Afternoon Shift",
+        description: "12:00 PM – 8:00 PM",
+        subtitle: "8 hourly slots per day",
+        icon: <Sunset className="w-5 h-5" />,
+        ranges: [{ from: 12, to: 20 }],
+    },
+    {
+        id: "split",
+        label: "Split Shift",
+        description: "8–12 AM & 4–8 PM",
+        subtitle: "8 hourly slots per day",
+        icon: <Clock className="w-5 h-5" />,
+        ranges: [{ from: 8, to: 12 }, { from: 16, to: 20 }],
+    },
+];
+
+function slotsOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date): boolean {
+    return aStart < bEnd && aEnd > bStart;
+}
+
+function buildSlotsFromRanges(
+    days: Date[],
+    ranges: TemplateRange[],
+    existingSaved: Timeslot[],
+    existingPending: PendingSlot[],
+): PendingSlot[] {
+    const result: PendingSlot[] = [];
+    for (const day of days) {
+        for (const range of ranges) {
+            for (let h = range.from; h < range.to; h++) {
+                const start = new Date(day);
+                start.setHours(h, 0, 0, 0);
+                const end = new Date(day);
+                end.setHours(h + 1, 0, 0, 0);
+                const hasConflict =
+                    existingSaved.some((s) => slotsOverlap(new Date(s.start_time), new Date(s.end_time), start, end)) ||
+                    existingPending.some((p) => slotsOverlap(p.start, p.end, start, end));
+                if (!hasConflict) {
+                    result.push({ localId: crypto.randomUUID(), start, end });
+                }
+            }
+        }
+    }
+    return result;
 }
 
 export default function SchedulePage() {
@@ -321,6 +387,23 @@ export default function SchedulePage() {
         setSwitchWarning(null);
     };
 
+    const handleApplyTemplate = (ranges: TemplateRange[]) => {
+        let targetView = view;
+        let targetDate = date;
+
+        // Month view: switch to week view for the current anchor date
+        if (view === "month") {
+            targetView = "week";
+            setView("week");
+        }
+
+        const { start, end } = getVisibleRange(targetView, targetDate);
+        const days = eachDayOfInterval({ start: startOfDay(start), end: startOfDay(end) });
+        const visibleSaved = savedSlots.filter((s) => s.employee_id === selectedEmployeeId);
+        const newSlots = buildSlotsFromRanges(days, ranges, visibleSaved, pendingAdd);
+        if (newSlots.length > 0) setPendingAdd((prev) => [...prev, ...newSlots]);
+    };
+
     if (authLoading || loading) {
         return (
             <main className="max-w-6xl mx-auto px-6 py-12">
@@ -412,6 +495,28 @@ export default function SchedulePage() {
                     {error}
                 </div>
             )}
+
+            {/* Quick-fill templates */}
+            <div className="mb-5">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Quick-fill templates</p>
+                <div className="grid grid-cols-3 gap-3">
+                    {TEMPLATES.map((tpl) => (
+                        <button
+                            key={tpl.id}
+                            type="button"
+                            onClick={() => handleApplyTemplate(tpl.ranges)}
+                            className="group text-left p-4 rounded-xl border border-gray-200 bg-white hover:border-red-300 hover:bg-red-50 transition-all"
+                        >
+                            <div className="flex items-center gap-2 text-red-500 mb-2 group-hover:text-red-600">
+                                {tpl.icon}
+                                <span className="text-sm font-bold text-gray-800 group-hover:text-gray-900">{tpl.label}</span>
+                            </div>
+                            <p className="text-sm font-semibold text-gray-700">{tpl.description}</p>
+                            <p className="text-xs text-gray-400 mt-0.5">{tpl.subtitle}</p>
+                        </button>
+                    ))}
+                </div>
+            </div>
 
             {/* Legend */}
             <div className="flex items-center gap-4 mb-4 text-xs text-gray-500">
