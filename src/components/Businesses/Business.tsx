@@ -7,7 +7,7 @@ import { useNotifications } from "@/src/context/NotificationContext";
 import { Employee, Service, TimeSlot } from "@/src/types";
 import BookingConfirmationModal from "../shared/ConfirmationModal";
 
-import { CheckCircle, Clock, Heart, MapPin, Star, X } from "lucide-react";
+import { CheckCircle, Clock, Heart, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button, Card } from "../ui";
 import { format } from "date-fns";
@@ -274,11 +274,7 @@ const Business = (data: BusinessPayload | null) => {
                                 <MapPin className="w-4 h-4 text-red-500" />{" "}
                                 {data.address}
                             </span>
-                            <span className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm text-sm font-bold text-gray-800">
-                                <Star className="w-4 h-4 fill-current text-amber-500" />{" "}
-                                {data.rating} Rating
-                            </span>
-                            <span className="flex items-center gap-2 bg-red-50 text-red-700 px-3 py-1.5 rounded-lg border border-red-100 font-bold uppercase tracking-widest text-[10px]">
+<span className="flex items-center gap-2 bg-red-50 text-red-700 px-3 py-1.5 rounded-lg border border-red-100 font-bold uppercase tracking-widest text-[10px]">
                                 {data.category}
                             </span>
                             {user && (

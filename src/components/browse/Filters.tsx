@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Button, Card } from "../ui";
-import { Link, MapPin, Star } from "lucide-react";
+import { Link, MapPin } from "lucide-react";
 import { BusinessRecord } from "@/src/types/Business";
 
 import Image from "next/image";
@@ -52,10 +52,6 @@ const Filters = ({ filtered }: { filtered: BusinessRecord[] }) => {
                                     <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest bg-indigo-50 px-2 py-1 rounded">
                                         {business.category}
                                     </span>
-                                    <div className="flex items-center gap-1 text-sm font-bold text-amber-500">
-                                        <Star className="w-4 h-4 fill-current" />
-                                        {business.rating}
-                                    </div>
                                 </div>
                                 <h3 className="text-xl font-bold mb-2 group-hover:text-indigo-600 transition-colors">
                                     {business.name}
