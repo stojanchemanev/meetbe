@@ -3,13 +3,15 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Calendar, User as UserIcon, Briefcase } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { UserRole } from "@/src/types";
 import { Card, Button } from "@/src/components/ui";
 
 const Page = () => {
     const { register, loading, user } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirect");
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -23,12 +25,13 @@ const Page = () => {
     useEffect(() => {
         if (user && !loading) {
             router.push(
-                user.role === UserRole.BUSINESS
-                    ? "/dashboard/business"
-                    : "/dashboard/client",
+                redirectTo ??
+                    (user.role === UserRole.BUSINESS
+                        ? "/dashboard/business"
+                        : "/dashboard/client"),
             );
         }
-    }, [user, loading, router]);
+    }, [user, loading, router, redirectTo]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -80,9 +83,10 @@ const Page = () => {
         }
 
         router.push(
-            role === UserRole.BUSINESS
-                ? "/dashboard/business"
-                : "/dashboard/client",
+            redirectTo ??
+                (role === UserRole.BUSINESS
+                    ? "/dashboard/business"
+                    : "/dashboard/client"),
         );
     };
 

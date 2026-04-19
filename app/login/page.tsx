@@ -3,13 +3,15 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Calendar, User as UserIcon, Briefcase } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { UserRole } from "@/src/types";
 import { Card, Button } from "@/src/components/ui";
 
 const Page = () => {
     const { login, loading, user } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirect") ?? "/";
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState<UserRole>(UserRole.CLIENT);
@@ -18,9 +20,9 @@ const Page = () => {
 
     useEffect(() => {
         if (user && !loading) {
-            router.push("/");
+            router.push(redirectTo);
         }
-    }, [user, loading, router]);
+    }, [user, loading, router, redirectTo]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,7 +44,7 @@ const Page = () => {
         }
 
         setSubmitting(false);
-        router.push("/");
+        router.push(redirectTo);
     };
 
     return (

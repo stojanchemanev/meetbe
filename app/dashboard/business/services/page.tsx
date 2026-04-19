@@ -6,6 +6,7 @@ import {
     Camera,
     CheckCircle2,
     Clock,
+    Copy,
     Loader2,
     Plus,
     Tag,
@@ -44,6 +45,7 @@ type DBEmployee = {
     name: string;
     role: string;
     avatar?: string | null;
+    claim_token?: string | null;
 };
 
 const inputClass =
@@ -151,6 +153,9 @@ export default function ServicesPage() {
 
     // Per-service assignment toggling
     const [togglingLink, setTogglingLink] = useState<string | null>(null);
+
+    // Invite link copy feedback
+    const [copiedEmpId, setCopiedEmpId] = useState<string | null>(null);
 
     useEffect(() => {
         if (isAuthenticated === false) router.push("/login");
@@ -347,6 +352,16 @@ export default function ServicesPage() {
             }));
         }
         setTogglingLink(null);
+    };
+
+    // ── Copy invite link ────────────────────────────────────────────────────
+    const handleCopyInviteLink = (emp: DBEmployee) => {
+        if (!emp.claim_token) return;
+        const url = `${window.location.origin}/join/${emp.claim_token}`;
+        navigator.clipboard.writeText(url).then(() => {
+            setCopiedEmpId(emp.id);
+            setTimeout(() => setCopiedEmpId(null), 2000);
+        });
     };
 
     // ── Render ──────────────────────────────────────────────────────────────
@@ -577,16 +592,32 @@ export default function ServicesPage() {
                                             </p>
                                         </div>
                                         {emp.user_id !== user?.id && (
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    handleDeleteEmployee(emp.id)
-                                                }
-                                                className="text-gray-300 hover:text-red-500 transition-colors p-1 shrink-0"
-                                                title="Remove employee"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
+                                            <div className="flex items-center gap-1 shrink-0">
+                                                {!emp.user_id && emp.claim_token && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleCopyInviteLink(emp)}
+                                                        className="text-gray-300 hover:text-red-500 transition-colors p-1"
+                                                        title="Copy invite link"
+                                                    >
+                                                        {copiedEmpId === emp.id ? (
+                                                            <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                                        ) : (
+                                                            <Copy className="w-4 h-4" />
+                                                        )}
+                                                    </button>
+                                                )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        handleDeleteEmployee(emp.id)
+                                                    }
+                                                    className="text-gray-300 hover:text-red-500 transition-colors p-1"
+                                                    title="Remove employee"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
                                 </Card>
