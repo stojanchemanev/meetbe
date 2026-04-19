@@ -6,12 +6,15 @@ import { useAuth } from "@/src/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Card, Button } from "@/src/components/ui";
 import { getUserBusiness } from "@/app/actions/businesses";
+import { getBusinessAppointments } from "@/app/actions/appointments";
 import type { Plan } from "@/src/lib/plans";
 
 export default function BusinessDashboard() {
     const { user, loading, isAuthenticated } = useAuth();
     const router = useRouter();
     const [plan, setPlan] = useState<Plan>("free");
+    const [totalBookings, setTotalBookings] = useState(0);
+    const [pendingCount, setPendingCount] = useState(0);
 
     useEffect(() => {
         if (isAuthenticated === false) {
@@ -23,6 +26,11 @@ export default function BusinessDashboard() {
         if (!user) return;
         getUserBusiness().then(({ business }) => {
             if (business?.plan) setPlan(business.plan as Plan);
+        });
+        getBusinessAppointments().then(({ data }) => {
+            if (!data) return;
+            setTotalBookings(data.filter((a) => a.status !== "CANCELLED").length);
+            setPendingCount(data.filter((a) => a.status === "PENDING").length);
         });
     }, [user]);
 
@@ -62,23 +70,32 @@ export default function BusinessDashboard() {
             </div>
 
             <div className="grid sm:grid-cols-3 gap-4 mb-10">
-                {[
-                    { label: "Total bookings", value: "0", icon: Calendar },
-                    { label: "Active clients", value: "0", icon: Users },
-                    { label: "Revenue this month", value: "$0", icon: BarChart2 },
-                ].map(({ label, value, icon: Icon }) => (
-                    <Card key={label} className="p-6 border-gray-100">
-                        <Icon className="w-5 h-5 text-red-500 mb-3" />
-                        <p className="text-2xl font-extrabold text-gray-900">
-                            {value}
+                <Card className="p-6 border-gray-100">
+                    <Calendar className="w-5 h-5 text-red-500 mb-3" />
+                    <p className="text-2xl font-extrabold text-gray-900">
+                        {totalBookings}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">Total bookings</p>
+                    {pendingCount > 0 && (
+                        <p className="text-xs text-amber-600 font-semibold mt-2">
+                            {pendingCount} awaiting confirmation
                         </p>
-                        <p className="text-sm text-gray-500 mt-1">{label}</p>
-                    </Card>
-                ))}
+                    )}
+                </Card>
+                <Card className="p-6 border-gray-100">
+                    <Users className="w-5 h-5 text-red-500 mb-3" />
+                    <p className="text-2xl font-extrabold text-gray-900">—</p>
+                    <p className="text-sm text-gray-500 mt-1">Active clients</p>
+                </Card>
+                <Card className="p-6 border-gray-100">
+                    <BarChart2 className="w-5 h-5 text-red-500 mb-3" />
+                    <p className="text-2xl font-extrabold text-gray-900">—</p>
+                    <p className="text-sm text-gray-500 mt-1">Revenue this month</p>
+                </Card>
             </div>
 
             {/* Quick-action cards */}
-            <div className="grid sm:grid-cols-2 gap-4 mb-6">
+            <div className="grid sm:grid-cols-3 gap-4 mb-6">
                 <Card className="p-6 border-gray-100 hover:border-red-100 transition-colors">
                     <Settings className="w-8 h-8 text-red-400 mb-3" />
                     <h2 className="text-base font-bold text-gray-800 mb-1">
@@ -108,6 +125,27 @@ export default function BusinessDashboard() {
                         <Button className="py-2 px-5 font-bold rounded-xl shadow-sm shadow-red-100 text-sm">
                             <Users className="w-4 h-4" />
                             Manage
+                        </Button>
+                    </Link>
+                </Card>
+
+                <Card className="p-6 border-gray-100 hover:border-red-100 transition-colors relative">
+                    {pendingCount > 0 && (
+                        <span className="absolute top-4 right-4 text-[10px] font-black bg-amber-500 text-white px-2 py-0.5 rounded-full">
+                            {pendingCount} pending
+                        </span>
+                    )}
+                    <Calendar className="w-8 h-8 text-red-400 mb-3" />
+                    <h2 className="text-base font-bold text-gray-800 mb-1">
+                        Bookings
+                    </h2>
+                    <p className="text-sm text-gray-500 mb-5">
+                        Review requests, confirm appointments, and manage your schedule.
+                    </p>
+                    <Link href="/dashboard/business/appointments">
+                        <Button className="py-2 px-5 font-bold rounded-xl shadow-sm shadow-red-100 text-sm">
+                            <Calendar className="w-4 h-4" />
+                            View Bookings
                         </Button>
                     </Link>
                 </Card>

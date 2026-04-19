@@ -4,6 +4,28 @@ import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { AppointmentWithRelations } from "@/src/types";
 
+export type EmployeeAppointment = {
+    id: string;
+    status: "PENDING" | "CONFIRMED" | "CANCELLED";
+    cancellation_reason: string | null;
+    created_at: string;
+    slot: { start_time: string; end_time: string };
+    service: { name: string; price: string; duration: number } | null;
+    client: { name: string; avatar: string | null };
+    business: { id: string; name: string; logo: string | null };
+};
+
+export type BusinessAppointment = {
+    id: string;
+    status: "PENDING" | "CONFIRMED" | "CANCELLED";
+    cancellation_reason: string | null;
+    created_at: string;
+    slot: { start_time: string; end_time: string };
+    service: { name: string; price: string; duration: number } | null;
+    employee: { id: string; name: string; role: string; avatar: string | null };
+    client: { name: string; avatar: string | null; phone: string | null };
+};
+
 export async function getClientAppointments(): Promise<{
     data: AppointmentWithRelations[] | null;
     error: string | null;
@@ -37,6 +59,49 @@ export async function getClientAppointments(): Promise<{
     if (error) return { data: null, error: error.message };
 
     return { data: data as AppointmentWithRelations[], error: null };
+}
+
+export async function getEmployeeSchedule(): Promise<{
+    data: EmployeeAppointment[] | null;
+    error: string | null;
+}> {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { data: null, error: "Unauthorized" };
+
+    // Find this user's employee record (one business per user enforced)
+    const { data: employee } = await supabase
+        .from("employees")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+    if (!employee) return { data: null, error: "No employee record found" };
+
+    const { data, error } = await supabase
+        .from("appointments")
+        .select(
+            `
+            id,
+            status,
+            cancellation_reason,
+            created_at,
+            slot:timeslots(start_time, end_time),
+            service:services(name, price, duration),
+            client:users!appointments_client_id_fkey(name, avatar),
+            business:businesses(id, name, logo)
+        `,
+        )
+        .eq("employee_id", employee.id)
+        .order("created_at", { ascending: false });
+
+    if (error) return { data: null, error: error.message };
+
+    return { data: data as EmployeeAppointment[], error: null };
 }
 
 export async function cancelAppointment(
@@ -76,6 +141,134 @@ export async function cancelAppointment(
     if (updateError) return { error: updateError.message };
 
     // Free the timeslot so others can book it
+    await supabase
+        .from("timeslots")
+        .update({ is_booked: false, booked_by: null })
+        .eq("id", appointment.slot_id);
+
+    return { error: null };
+}
+
+export async function getBusinessAppointments(): Promise<{
+    data: BusinessAppointment[] | null;
+    error: string | null;
+}> {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { data: null, error: "Unauthorized" };
+
+    const { data: business } = await supabase
+        .from("businesses")
+        .select("id")
+        .eq("owner_id", user.id)
+        .single();
+
+    if (!business) return { data: null, error: "Business not found" };
+
+    const { data, error } = await supabase
+        .from("appointments")
+        .select(
+            `
+            id,
+            status,
+            cancellation_reason,
+            created_at,
+            slot:timeslots(start_time, end_time),
+            service:services(name, price, duration),
+            employee:employees(id, name, role, avatar),
+            client:users!appointments_client_id_fkey(name, avatar, phone)
+        `,
+        )
+        .eq("business_id", business.id)
+        .order("created_at", { ascending: false });
+
+    if (error) return { data: null, error: error.message };
+
+    return { data: data as unknown as BusinessAppointment[], error: null };
+}
+
+export async function confirmAppointment(
+    appointmentId: string,
+): Promise<{ error: string | null }> {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
+
+    // Verify the appointment belongs to this owner's business
+    const { data: appointment } = await supabase
+        .from("appointments")
+        .select("status, business_id")
+        .eq("id", appointmentId)
+        .single();
+
+    if (!appointment) return { error: "Appointment not found" };
+    if (appointment.status !== "PENDING") return { error: "Appointment is not pending" };
+
+    const { data: business } = await supabase
+        .from("businesses")
+        .select("owner_id")
+        .eq("id", appointment.business_id)
+        .single();
+
+    if (business?.owner_id !== user.id) return { error: "Unauthorized" };
+
+    const { error } = await supabase
+        .from("appointments")
+        .update({ status: "CONFIRMED", updated_at: new Date().toISOString() })
+        .eq("id", appointmentId);
+
+    if (error) return { error: error.message };
+    return { error: null };
+}
+
+export async function cancelAppointmentAsOwner(
+    appointmentId: string,
+    reason: string,
+): Promise<{ error: string | null }> {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
+
+    const { data: appointment } = await supabase
+        .from("appointments")
+        .select("slot_id, status, business_id")
+        .eq("id", appointmentId)
+        .single();
+
+    if (!appointment) return { error: "Appointment not found" };
+    if (appointment.status === "CANCELLED") return { error: "Already cancelled" };
+
+    const { data: business } = await supabase
+        .from("businesses")
+        .select("owner_id")
+        .eq("id", appointment.business_id)
+        .single();
+
+    if (business?.owner_id !== user.id) return { error: "Unauthorized" };
+
+    const { error: updateError } = await supabase
+        .from("appointments")
+        .update({
+            status: "CANCELLED",
+            cancellation_reason: reason,
+            updated_at: new Date().toISOString(),
+        })
+        .eq("id", appointmentId);
+
+    if (updateError) return { error: updateError.message };
+
     await supabase
         .from("timeslots")
         .update({ is_booked: false, booked_by: null })

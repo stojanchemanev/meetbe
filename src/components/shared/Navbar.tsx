@@ -2,14 +2,15 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Calendar, LogOut } from "lucide-react";
+import { Briefcase, Calendar, LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { UserRole } from "../../types";
 import { NotificationBell } from "../shared/NotificationBell";
 
 export const Navbar = () => {
-    const { user, logout } = useAuth();
+    const { user, employeeLinks, logout } = useAuth();
     const router = useRouter();
+    const isEmployee = employeeLinks.length > 0;
 
     const handleLogout = async () => {
         await logout();
@@ -42,6 +43,15 @@ export const Navbar = () => {
                     {user ? (
                         <>
                             <NotificationBell />
+                            {isEmployee && (
+                                <Link
+                                    href="/dashboard/employee"
+                                    className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-red-600"
+                                >
+                                    <Briefcase className="w-4 h-4" />
+                                    Work Schedule
+                                </Link>
+                            )}
                             <Link
                                 href={
                                     user.role === UserRole.BUSINESS

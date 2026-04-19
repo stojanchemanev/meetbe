@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Calendar, ChevronRight, Heart, Search, User as UserIcon } from "lucide-react";
+import { Briefcase, Calendar, ChevronRight, Heart, Search, User as UserIcon } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Card, Button } from "@/src/components/ui";
@@ -20,7 +20,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function ClientDashboard() {
-    const { user, loading, isAuthenticated } = useAuth();
+    const { user, employeeLinks, loading, isAuthenticated } = useAuth();
     const router = useRouter();
 
     const [appointments, setAppointments] = useState<AppointmentWithRelations[]>(
@@ -158,6 +158,29 @@ export default function ClientDashboard() {
                     </Card>
                 </Link>
             </div>
+
+            {/* Employee banner */}
+            {employeeLinks.length > 0 && (
+                <Link href="/dashboard/employee">
+                    <div className="flex items-center justify-between gap-3 bg-red-50 border border-red-100 rounded-xl px-5 py-4 mb-6 hover:border-red-300 transition-colors">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
+                                <Briefcase className="w-4 h-4 text-red-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-gray-900">
+                                    You&apos;re staff at{" "}
+                                    {employeeLinks[0].business_name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                    View your work schedule
+                                </p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-red-400 shrink-0" />
+                    </div>
+                </Link>
+            )}
 
             {/* Favorites shortcut */}
             <div className="flex justify-end mb-6">
