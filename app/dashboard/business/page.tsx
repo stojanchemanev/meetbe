@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Users, Briefcase, BarChart2, Calendar, Tag, Settings, Zap } from "lucide-react";
+import { Users, Briefcase, BarChart2, Calendar, CalendarDays, Tag, Settings, Zap } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Card, Button } from "@/src/components/ui";
@@ -146,6 +146,23 @@ export default function BusinessDashboard() {
                         <Button className="py-2 px-5 font-bold rounded-xl shadow-sm shadow-red-100 text-sm">
                             <Calendar className="w-4 h-4" />
                             View Bookings
+                        </Button>
+                    </Link>
+                </Card>
+            </div>
+
+            {/* Schedule quick-action */}
+            <div className="grid sm:grid-cols-3 gap-4">
+                <Card className="p-6 border-gray-100 hover:border-red-100 transition-colors">
+                    <CalendarDays className="w-8 h-8 text-red-400 mb-3" />
+                    <h2 className="text-base font-bold text-gray-800 mb-1">Schedule</h2>
+                    <p className="text-sm text-gray-500 mb-5">
+                        Set available timeslots per staff member for clients to book.
+                    </p>
+                    <Link href="/dashboard/business/schedule">
+                        <Button className="py-2 px-5 font-bold rounded-xl shadow-sm shadow-red-100 text-sm">
+                            <CalendarDays className="w-4 h-4" />
+                            Manage Schedule
                         </Button>
                     </Link>
                 </Card>
