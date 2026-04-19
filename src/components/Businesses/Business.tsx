@@ -137,20 +137,16 @@ const Business = (data: BusinessPayload | null) => {
         );
         if (!employee?.timeslots?.length) return [];
 
-        // If selectedDate has no slots, fall back to the first available slot's date
-        const selected = format(selectedDate, "yyyy-MM-dd");
-        const hasSlots = employee.timeslots.some(
-            (slot) =>
-                format(new Date(slot.start_time), "yyyy-MM-dd") === selected,
+        const now = new Date();
+        const futureSlots = employee.timeslots.filter(
+            (slot) => new Date(slot.start_time) > now,
         );
 
-        const targetDate = hasSlots
-            ? selected
-            : format(new Date(employee.timeslots[0].start_time), "yyyy-MM-dd");
+        const selected = format(selectedDate, "yyyy-MM-dd");
 
-        return employee.timeslots.filter(
+        return futureSlots.filter(
             (slot) =>
-                format(new Date(slot.start_time), "yyyy-MM-dd") === targetDate,
+                format(new Date(slot.start_time), "yyyy-MM-dd") === selected,
         );
     }, [selectedEmployee, selectedService, selectedDate, data]);
 
@@ -237,11 +233,13 @@ const Business = (data: BusinessPayload | null) => {
         setSelectedEmployee(emp);
         setBookingConfirmed(false);
 
+        const now = new Date();
         const firstAvailableSlot = emp.timeslots?.find(
-            (slot) => !slot.is_booked,
+            (slot) => !slot.is_booked && new Date(slot.start_time) > now,
         );
         if (firstAvailableSlot) {
-            setSelectedDate(new Date(firstAvailableSlot.start_time));
+            const d = new Date(firstAvailableSlot.start_time);
+            setSelectedDate(new Date(d.getFullYear(), d.getMonth(), d.getDate()));
         }
     };
 
@@ -455,13 +453,10 @@ const Business = (data: BusinessPayload | null) => {
                                                     new Date(),
                                                     "yyyy-MM-dd",
                                                 )}
-                                                onChange={(e) =>
-                                                    setSelectedDate(
-                                                        new Date(
-                                                            e.target.value,
-                                                        ),
-                                                    )
-                                                }
+                                                onChange={(e) => {
+                                                    const [y, m, d] = e.target.value.split("-").map(Number);
+                                                    setSelectedDate(new Date(y, m - 1, d));
+                                                }}
                                                 className="w-full mb-4 p-2 text-sm border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:border-red-400"
                                             />
                                             {slots.length === 0 ? (
