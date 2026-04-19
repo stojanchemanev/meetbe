@@ -593,24 +593,32 @@ export default function ServicesPage() {
                                         </div>
                                         {emp.user_id !== user?.id && (
                                             <div className="flex items-center gap-1 shrink-0">
-                                                {!emp.user_id && emp.claim_token && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleCopyInviteLink(emp)}
-                                                        className="text-gray-300 hover:text-red-500 transition-colors p-1"
-                                                        title="Copy invite link"
-                                                    >
-                                                        {copiedEmpId === emp.id ? (
-                                                            <CheckCircle2 className="w-4 h-4 text-green-500" />
-                                                        ) : (
-                                                            <Copy className="w-4 h-4" />
-                                                        )}
-                                                    </button>
-                                                )}
+                                                {!emp.user_id &&
+                                                    emp.claim_token && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleCopyInviteLink(
+                                                                    emp,
+                                                                )
+                                                            }
+                                                            className="text-gray-300 hover:text-red-500 transition-colors p-1"
+                                                            title="Copy invite link"
+                                                        >
+                                                            {copiedEmpId ===
+                                                            emp.id ? (
+                                                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                                            ) : (
+                                                                <Copy className="w-4 h-4" />
+                                                            )}
+                                                        </button>
+                                                    )}
                                                 <button
                                                     type="button"
                                                     onClick={() =>
-                                                        handleDeleteEmployee(emp.id)
+                                                        handleDeleteEmployee(
+                                                            emp.id,
+                                                        )
                                                     }
                                                     className="text-gray-300 hover:text-red-500 transition-colors p-1"
                                                     title="Remove employee"
@@ -658,9 +666,7 @@ export default function ServicesPage() {
                                 <input
                                     type="text"
                                     value={svcName}
-                                    onChange={(e) =>
-                                        setSvcName(e.target.value)
-                                    }
+                                    onChange={(e) => setSvcName(e.target.value)}
                                     placeholder="Service name *"
                                     className={inputClass}
                                 />
