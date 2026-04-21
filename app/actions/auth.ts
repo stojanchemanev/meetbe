@@ -4,6 +4,26 @@ import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { User, UserRole } from "@/src/types";
 
+export async function signInWithOAuth(
+  provider: "google" | "facebook",
+  role: UserRole = UserRole.CLIENT,
+) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: `${siteUrl}/auth/callback?role=${role}`,
+    },
+  });
+
+  if (error) return { error: error.message };
+  return { url: data.url };
+}
+
 export async function signUp(email: string, password: string, name: string, role: UserRole) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
