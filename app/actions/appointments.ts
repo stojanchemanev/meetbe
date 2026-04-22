@@ -191,6 +191,58 @@ export async function getBusinessAppointments(): Promise<{
     return { data: data as unknown as BusinessAppointment[], error: null };
 }
 
+export async function createAppointment(payload: {
+    slotId: string;
+    businessId: string;
+    employeeId: string;
+    serviceId: string;
+}): Promise<{ error: string | null }> {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
+
+    // Enforce: max 1 PENDING appointment per business per client
+    const { data: existing } = await supabase
+        .from("appointments")
+        .select("id")
+        .eq("client_id", user.id)
+        .eq("business_id", payload.businessId)
+        .eq("status", "PENDING")
+        .maybeSingle();
+
+    if (existing) {
+        return {
+            error: "You already have a pending request at this business. Wait for it to be confirmed before booking again.",
+        };
+    }
+
+    const { error: appointmentError } = await supabase
+        .from("appointments")
+        .insert({
+            slot_id: payload.slotId,
+            client_id: user.id,
+            business_id: payload.businessId,
+            employee_id: payload.employeeId,
+            service_id: payload.serviceId,
+            status: "PENDING",
+        });
+
+    if (appointmentError) return { error: appointmentError.message };
+
+    const { error: slotError } = await supabase
+        .from("timeslots")
+        .update({ is_booked: true, booked_by: user.id })
+        .eq("id", payload.slotId);
+
+    if (slotError) return { error: slotError.message };
+
+    return { error: null };
+}
+
 export async function confirmAppointment(
     appointmentId: string,
 ): Promise<{ error: string | null }> {

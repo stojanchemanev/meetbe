@@ -13,6 +13,7 @@ import { Button, Card } from "../ui";
 import { format } from "date-fns";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
+import { createAppointment } from "@/app/actions/appointments";
 
 const Business = (data: BusinessPayload | null) => {
     const navigate = useRouter();
@@ -37,9 +38,24 @@ const Business = (data: BusinessPayload | null) => {
     const [slotToConfirm, setSlotToConfirm] = useState<TimeSlot | null>(null);
     const [bookingConfirmed, setBookingConfirmed] = useState(false);
 
+    const [hasPending, setHasPending] = useState(false);
+
     // Favorites state
     const [isFav, setIsFav] = useState(false);
     const [favLoading, setFavLoading] = useState(false);
+
+    useEffect(() => {
+        if (!user || !data) return;
+        const supabase = createClient();
+        supabase
+            .from("appointments")
+            .select("id")
+            .eq("client_id", user.id)
+            .eq("business_id", data.id)
+            .eq("status", "PENDING")
+            .maybeSingle()
+            .then(({ data: pending }) => setHasPending(!!pending));
+    }, [user, data]);
 
     // Fetch initial favorite status
     useEffect(() => {
@@ -152,10 +168,10 @@ const Business = (data: BusinessPayload | null) => {
 
     const initiateBooking = (slot: TimeSlot) => {
         if (!user) {
-            // If user is not logged in, redirect to login with return path
             navigate.push("/login");
             return;
         }
+        if (hasPending) return;
         setSlotToConfirm(slot);
     };
 
@@ -169,41 +185,22 @@ const Business = (data: BusinessPayload | null) => {
         )
             return;
 
-        const supabase = createClient();
+        const { error } = await createAppointment({
+            slotId: slotToConfirm.id,
+            businessId: data.id,
+            employeeId: selectedEmployee.id,
+            serviceId: selectedService.id,
+        });
 
-        // 1. Insert appointment
-        const { error: appointmentError } = await supabase
-            .from("appointments")
-            .insert({
-                slot_id: slotToConfirm.id,
-                client_id: user.id,
-                business_id: data.id,
-                employee_id: selectedEmployee.id,
-                service_id: selectedService.id,
-                status: "PENDING",
-            });
-
-        if (appointmentError) {
-            addNotification(
-                "Booking Failed",
-                appointmentError.message,
-                "error",
-            );
-            return;
-        }
-
-        // 2. Mark slot as booked
-        const { error: slotError } = await supabase
-            .from("timeslots")
-            .update({ is_booked: true, booked_by: user.id })
-            .eq("id", slotToConfirm.id);
-
-        if (slotError) {
-            addNotification("Booking Failed", slotError.message, "error");
+        if (error) {
+            addNotification("Booking Failed", error, "error");
+            if (error.includes("pending")) setHasPending(true);
+            setSlotToConfirm(null);
             return;
         }
 
         setBookingConfirmed(true);
+        setHasPending(true);
         addNotification(
             "Booking Request Sent",
             `Your request for ${selectedService.name} is pending approval from ${data.name}.`,
@@ -391,7 +388,19 @@ const Business = (data: BusinessPayload | null) => {
                             <Clock className="w-5 h-5 text-red-600" /> Book
                             Session
                         </h3>
-                        {bookingConfirmed ? (
+                        {hasPending && !bookingConfirmed ? (
+                            <div className="text-center py-8">
+                                <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                                    <Clock className="w-6 h-6 text-amber-500" />
+                                </div>
+                                <h4 className="font-bold text-gray-900 mb-2">
+                                    Request Pending
+                                </h4>
+                                <p className="text-sm text-gray-500">
+                                    You already have a pending booking at this business. You can book at another business while you wait for confirmation.
+                                </p>
+                            </div>
+                        ) : bookingConfirmed ? (
                             <div className="text-center py-10 animate-in zoom-in duration-300">
                                 <CheckCircle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
                                 <h4 className="text-xl font-bold text-gray-900">
@@ -464,16 +473,14 @@ const Business = (data: BusinessPayload | null) => {
                                                 slots.map((slot) => (
                                                     <button
                                                         key={slot.id}
-                                                        disabled={
-                                                            slot.is_booked
-                                                        }
+                                                        disabled={slot.is_booked || hasPending}
                                                         onClick={() =>
                                                             initiateBooking(
                                                                 slot,
                                                             )
                                                         }
                                                         className={`p-3 text-xs font-bold rounded-lg border transition-all text-center ${
-                                                            slot.is_booked
+                                                            slot.is_booked || hasPending
                                                                 ? "bg-gray-100 border-gray-100 text-gray-300 cursor-not-allowed line-through"
                                                                 : "bg-white border-gray-200 text-gray-700 hover:border-red-600 hover:bg-red-50 hover:text-red-700"
                                                         }`}
