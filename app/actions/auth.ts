@@ -97,5 +97,25 @@ export async function signOut() {
   }
 }
 
+export async function requestPasswordReset(email: string) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl}/auth/reset-callback`,
+  });
 
+  if (error) return { error: error.message };
+  return { success: true };
+}
+
+export async function updatePassword(password: string) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) return { error: error.message };
+  return { success: true };
+}

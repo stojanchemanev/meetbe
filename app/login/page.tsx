@@ -108,6 +108,15 @@ const Page = () => {
                             />
                         </div>
 
+                        <div className="flex justify-end -mt-2">
+                            <Link
+                                href="/forgot-password"
+                                className="text-sm text-red-600 font-semibold hover:underline"
+                            >
+                                Forgot password?
+                            </Link>
+                        </div>
+
                         <Button
                             type="submit"
                             disabled={submitting}
