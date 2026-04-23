@@ -236,7 +236,9 @@ const Business = (data: BusinessPayload | null) => {
         );
         if (firstAvailableSlot) {
             const d = new Date(firstAvailableSlot.start_time);
-            setSelectedDate(new Date(d.getFullYear(), d.getMonth(), d.getDate()));
+            setSelectedDate(
+                new Date(d.getFullYear(), d.getMonth(), d.getDate()),
+            );
         }
     };
 
@@ -251,7 +253,7 @@ const Business = (data: BusinessPayload | null) => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                 <div className="absolute -bottom-12 left-4 md:left-24 p-1.5 bg-white rounded-2xl shadow-xl">
                     <Image
-                        src={data?.logo}
+                        src={data?.logo ?? "/avatar.png"}
                         alt={data?.name}
                         className="w-32 h-32 rounded-xl object-cover"
                         width={128}
@@ -271,7 +273,7 @@ const Business = (data: BusinessPayload | null) => {
                                 <MapPin className="w-4 h-4 text-red-500" />{" "}
                                 {data.address}
                             </span>
-<span className="flex items-center gap-2 bg-red-50 text-red-700 px-3 py-1.5 rounded-lg border border-red-100 font-bold uppercase tracking-widest text-[10px]">
+                            <span className="flex items-center gap-2 bg-red-50 text-red-700 px-3 py-1.5 rounded-lg border border-red-100 font-bold uppercase tracking-widest text-[10px]">
                                 {data.category}
                             </span>
                             {user && (
@@ -318,7 +320,7 @@ const Business = (data: BusinessPayload | null) => {
                                     }`}
                                 >
                                     <Image
-                                        src={emp.avatar}
+                                        src={emp.avatar ?? "/avatar.png"}
                                         alt={emp.name}
                                         className="w-20 h-20 rounded-xl mx-auto object-cover mb-4"
                                         width={80}
@@ -397,7 +399,9 @@ const Business = (data: BusinessPayload | null) => {
                                     Request Pending
                                 </h4>
                                 <p className="text-sm text-gray-500">
-                                    You already have a pending booking at this business. You can book at another business while you wait for confirmation.
+                                    You already have a pending booking at this
+                                    business. You can book at another business
+                                    while you wait for confirmation.
                                 </p>
                             </div>
                         ) : bookingConfirmed ? (
@@ -459,8 +463,13 @@ const Business = (data: BusinessPayload | null) => {
                                                     "yyyy-MM-dd",
                                                 )}
                                                 onChange={(e) => {
-                                                    const [y, m, d] = e.target.value.split("-").map(Number);
-                                                    setSelectedDate(new Date(y, m - 1, d));
+                                                    const [y, m, d] =
+                                                        e.target.value
+                                                            .split("-")
+                                                            .map(Number);
+                                                    setSelectedDate(
+                                                        new Date(y, m - 1, d),
+                                                    );
                                                 }}
                                                 className="w-full mb-4 p-2 text-sm border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:border-red-400"
                                             />
@@ -473,14 +482,18 @@ const Business = (data: BusinessPayload | null) => {
                                                 slots.map((slot) => (
                                                     <button
                                                         key={slot.id}
-                                                        disabled={slot.is_booked || hasPending}
+                                                        disabled={
+                                                            slot.is_booked ||
+                                                            hasPending
+                                                        }
                                                         onClick={() =>
                                                             initiateBooking(
                                                                 slot,
                                                             )
                                                         }
                                                         className={`p-3 text-xs font-bold rounded-lg border transition-all text-center ${
-                                                            slot.is_booked || hasPending
+                                                            slot.is_booked ||
+                                                            hasPending
                                                                 ? "bg-gray-100 border-gray-100 text-gray-300 cursor-not-allowed line-through"
                                                                 : "bg-white border-gray-200 text-gray-700 hover:border-red-600 hover:bg-red-50 hover:text-red-700"
                                                         }`}
