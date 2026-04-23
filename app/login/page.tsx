@@ -34,6 +34,7 @@ const Page = () => {
         setError("");
         setOauthLoading(provider);
         const result = await signInWithOAuth(provider);
+        console.log("OAuth result:", result);
         if ("error" in result) {
             setError(result.error ?? "OAuth failed");
             setOauthLoading(null);

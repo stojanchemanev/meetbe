@@ -29,6 +29,8 @@ export async function signInWithOAuth(
     },
   });
 
+  console.log('data', data)
+
   if (error) return { error: error.message };
   return { url: data.url };
 }
