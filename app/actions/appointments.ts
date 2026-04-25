@@ -3,6 +3,8 @@
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { AppointmentWithRelations } from "@/src/types";
+import { PLAN_LIMITS, CLIENT_LIMIT_ERROR } from "@/src/lib/plans";
+import { sendCapacityNotificationEmail } from "@/src/lib/email";
 
 export type EmployeeAppointment = {
     id: string;
@@ -191,6 +193,33 @@ export async function getBusinessAppointments(): Promise<{
     return { data: data as unknown as BusinessAppointment[], error: null };
 }
 
+export async function getUniqueClientCount(): Promise<number> {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return 0;
+
+    const { data: business } = await supabase
+        .from("businesses")
+        .select("id")
+        .eq("owner_id", user.id)
+        .single();
+
+    if (!business) return 0;
+
+    const { data } = await supabase
+        .from("appointments")
+        .select("client_id")
+        .eq("business_id", business.id)
+        .neq("status", "CANCELLED");
+
+    const unique = new Set((data ?? []).map((r) => r.client_id));
+    return unique.size;
+}
+
 export async function createAppointment(payload: {
     slotId: string;
     businessId: string;
@@ -218,6 +247,55 @@ export async function createAppointment(payload: {
         return {
             error: "You already have a pending request at this business. Wait for it to be confirmed before booking again.",
         };
+    }
+
+    // Enforce plan-based unique-client limit
+    const { data: business } = await supabase
+        .from("businesses")
+        .select("plan, name, owner_id")
+        .eq("id", payload.businessId)
+        .single();
+
+    const plan = ((business?.plan as string) ?? "free") as "free" | "growth";
+    const clientLimit = PLAN_LIMITS[plan].clients;
+
+    if (clientLimit !== Infinity) {
+        // Count distinct clients who have at least one non-cancelled appointment
+        const { data: clientRows } = await supabase
+            .from("appointments")
+            .select("client_id")
+            .eq("business_id", payload.businessId)
+            .neq("status", "CANCELLED");
+
+        const uniqueClientIds = new Set((clientRows ?? []).map((r) => r.client_id));
+
+        // If this client isn't already counted and we're at the limit, block them
+        if (!uniqueClientIds.has(user.id) && uniqueClientIds.size >= clientLimit) {
+            // Notify the business owner via email (best-effort)
+            if (business?.owner_id) {
+                const { data: ownerProfile } = await supabase
+                    .from("users")
+                    .select("email, name")
+                    .eq("id", business.owner_id)
+                    .single();
+
+                const { data: clientProfile } = await supabase
+                    .from("users")
+                    .select("name")
+                    .eq("id", user.id)
+                    .single();
+
+                if (ownerProfile?.email) {
+                    sendCapacityNotificationEmail({
+                        ownerEmail: ownerProfile.email,
+                        businessName: business.name ?? "your business",
+                        clientName: clientProfile?.name ?? "A client",
+                    }).catch(() => {});
+                }
+            }
+
+            return { error: CLIENT_LIMIT_ERROR };
+        }
     }
 
     const { error: appointmentError } = await supabase

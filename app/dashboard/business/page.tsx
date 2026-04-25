@@ -6,7 +6,8 @@ import { useAuth } from "@/src/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Card, Button } from "@/src/components/ui";
 import { getUserBusiness } from "@/app/actions/businesses";
-import { getBusinessAppointments } from "@/app/actions/appointments";
+import { getBusinessAppointments, getUniqueClientCount } from "@/app/actions/appointments";
+import { PLAN_LIMITS } from "@/src/lib/plans";
 import type { Plan } from "@/src/lib/plans";
 
 export default function BusinessDashboard() {
@@ -15,6 +16,7 @@ export default function BusinessDashboard() {
     const [plan, setPlan] = useState<Plan>("free");
     const [totalBookings, setTotalBookings] = useState(0);
     const [pendingCount, setPendingCount] = useState(0);
+    const [uniqueClients, setUniqueClients] = useState(0);
 
     useEffect(() => {
         if (isAuthenticated === false) {
@@ -32,6 +34,7 @@ export default function BusinessDashboard() {
             setTotalBookings(data.filter((a) => a.status !== "CANCELLED").length);
             setPendingCount(data.filter((a) => a.status === "PENDING").length);
         });
+        getUniqueClientCount().then(setUniqueClients);
     }, [user]);
 
     if (loading || !user) return (
@@ -69,6 +72,42 @@ export default function BusinessDashboard() {
                 </span>
             </div>
 
+            {plan === "free" && (
+                <div className={`mb-6 rounded-xl px-5 py-4 flex items-start gap-3 border ${
+                    uniqueClients >= PLAN_LIMITS.free.clients
+                        ? "bg-red-50 border-red-200"
+                        : "bg-amber-50 border-amber-100"
+                }`}>
+                    <Zap className={`w-4 h-4 shrink-0 mt-0.5 ${uniqueClients >= PLAN_LIMITS.free.clients ? "text-red-500" : "text-amber-500"}`} />
+                    <div className="flex-1 min-w-0">
+                        {uniqueClients >= PLAN_LIMITS.free.clients ? (
+                            <>
+                                <p className="text-sm font-bold text-red-800">
+                                    You&apos;ve reached your 10-client limit — new clients can&apos;t book right now.
+                                </p>
+                                <p className="text-xs text-red-700 mt-0.5">
+                                    Upgrade to Growth to accept unlimited clients and never miss a booking.
+                                </p>
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-sm font-bold text-amber-800">
+                                    Free plan: {uniqueClients} / {PLAN_LIMITS.free.clients} unique clients
+                                </p>
+                                <p className="text-xs text-amber-700 mt-0.5">
+                                    Once you reach 10 clients, new bookings will be blocked. Upgrade to Growth for unlimited clients.
+                                </p>
+                            </>
+                        )}
+                    </div>
+                    <Link href="/pricing">
+                        <Button className="text-xs px-3 py-1.5 font-bold shrink-0">
+                            Upgrade
+                        </Button>
+                    </Link>
+                </div>
+            )}
+
             <div className="grid sm:grid-cols-3 gap-4 mb-10">
                 <Card className="p-6 border-gray-100">
                     <Calendar className="w-5 h-5 text-red-500 mb-3" />
@@ -84,8 +123,11 @@ export default function BusinessDashboard() {
                 </Card>
                 <Card className="p-6 border-gray-100">
                     <Users className="w-5 h-5 text-red-500 mb-3" />
-                    <p className="text-2xl font-extrabold text-gray-900">—</p>
-                    <p className="text-sm text-gray-500 mt-1">Active clients</p>
+                    <p className="text-2xl font-extrabold text-gray-900">{uniqueClients}</p>
+                    <p className="text-sm text-gray-500 mt-1">Unique clients</p>
+                    {plan === "free" && (
+                        <p className="text-xs text-gray-400 mt-1">{PLAN_LIMITS.free.clients - uniqueClients} slots remaining</p>
+                    )}
                 </Card>
                 <Card className="p-6 border-gray-100">
                     <BarChart2 className="w-5 h-5 text-red-500 mb-3" />

@@ -14,22 +14,22 @@ const Page = () => {
                 "Up to 10 clients",
                 "Basic Calendar",
                 "Dashboard Analytics",
-                "2 Staff Members",
+                "1 Employee / Business Owner",
             ],
-            buttonText: "Start for Free",
+            buttonText: "Start for Free — Forever",
             recommended: false,
         },
         {
             name: "Growth",
             price: "$19",
-            extra: "+ $1 per extra user",
             description: "Scale your business with ease.",
             features: [
                 "Unlimited Clients after 10",
                 "Real-time Notifications",
-                "Custom Business Page",
-                "5 Staff Members",
+                "Full Calendar",
+                "3 Staff Members",
                 "Email Alerts",
+                "AI Scheduling",
             ],
             buttonText: "Get Started",
             recommended: true,
@@ -71,12 +71,19 @@ const Page = () => {
                         className={`relative p-8 flex flex-col ${
                             plan.recommended
                                 ? "ring-2 ring-red-600 shadow-2xl scale-105 z-10 overflow-visible"
+                                : plan.name === "Free"
+                                ? "border-gray-100 shadow-xl overflow-visible"
                                 : "border-gray-100 shadow-xl"
                         }`}
                     >
                         {plan.recommended && (
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-red-100">
                                 Most Popular
+                            </div>
+                        )}
+                        {plan.name === "Free" && (
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-900 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg">
+                                Free Forever
                             </div>
                         )}
                         <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -90,11 +97,6 @@ const Page = () => {
                                 {" "}
                                 /mo
                             </span>
-                            {plan.extra && (
-                                <p className="text-xs text-red-600 font-bold mt-1 uppercase tracking-wider">
-                                    {plan.extra}
-                                </p>
-                            )}
                         </div>
                         <p className="text-sm text-gray-500 mb-8 font-medium">
                             {plan.description}

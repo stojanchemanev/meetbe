@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 import { createAppointment } from "@/app/actions/appointments";
+import { CLIENT_LIMIT_ERROR } from "@/src/lib/plans";
 
 const Business = (data: BusinessPayload | null) => {
     const navigate = useRouter();
@@ -39,6 +40,7 @@ const Business = (data: BusinessPayload | null) => {
     const [bookingConfirmed, setBookingConfirmed] = useState(false);
 
     const [hasPending, setHasPending] = useState(false);
+    const [capacityReached, setCapacityReached] = useState(false);
 
     // Favorites state
     const [isFav, setIsFav] = useState(false);
@@ -193,6 +195,11 @@ const Business = (data: BusinessPayload | null) => {
         });
 
         if (error) {
+            if (error === CLIENT_LIMIT_ERROR) {
+                setCapacityReached(true);
+                setSlotToConfirm(null);
+                return;
+            }
             addNotification("Booking Failed", error, "error");
             if (error.includes("pending")) setHasPending(true);
             setSlotToConfirm(null);
@@ -390,7 +397,26 @@ const Business = (data: BusinessPayload | null) => {
                             <Clock className="w-5 h-5 text-red-600" /> Book
                             Session
                         </h3>
-                        {hasPending && !bookingConfirmed ? (
+                        {capacityReached ? (
+                            <div className="text-center py-8">
+                                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                                    <Clock className="w-6 h-6 text-gray-400" />
+                                </div>
+                                <h4 className="font-bold text-gray-900 mb-2">
+                                    Fully Booked Right Now
+                                </h4>
+                                <p className="text-sm text-gray-500 mb-5 leading-relaxed">
+                                    {data?.name} isn&apos;t accepting new clients at the moment.
+                                    We&apos;ve let them know you&apos;re interested — they&apos;ll reach out to you as soon as a spot opens up.
+                                </p>
+                                <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 text-left">
+                                    <p className="text-xs font-black uppercase tracking-widest text-amber-700 mb-1">What happens next?</p>
+                                    <p className="text-xs text-amber-800 leading-relaxed">
+                                        The business has been notified via email. They&apos;ll contact you directly when they&apos;re ready to accept new bookings.
+                                    </p>
+                                </div>
+                            </div>
+                        ) : hasPending && !bookingConfirmed ? (
                             <div className="text-center py-8">
                                 <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
                                     <Clock className="w-6 h-6 text-amber-500" />

@@ -33,7 +33,7 @@ interface UpgradeModalProps {
 
 const LIMIT_COPY: Record<UpgradeModalProps["limitType"], string> = {
     services: "You've reached the 3-service limit on the Free plan.",
-    employees: "You've reached the 2-employee limit on the Free plan.",
+    employees: "You've reached the 1-employee limit on the Free plan.",
     clients: "You've reached the 10-client limit on the Free plan.",
 };
 
