@@ -76,7 +76,7 @@ function AppointmentCard({ appt }: { appt: EmployeeAppointment }) {
                             {format(end, "h:mm a")}
                         </span>
                         {appt.service && (
-                            <span className="text-xs font-bold text-red-600">
+                            <span className="text-xs font-bold text-primary-600">
                                 {appt.service.price}
                             </span>
                         )}
@@ -110,8 +110,7 @@ export default function EmployeeDashboard() {
     const { user, employeeLinks, loading, isAuthenticated } = useAuth();
     const router = useRouter();
 
-    const [appointments, setAppointments] = useState<EmployeeAppointment[]>([]);
-    const [apptLoading, setApptLoading] = useState(true);
+    const [appointments, setAppointments] = useState<EmployeeAppointment[] | null>(null);
     const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
 
     useEffect(() => {
@@ -119,18 +118,21 @@ export default function EmployeeDashboard() {
     }, [isAuthenticated, router]);
 
     useEffect(() => {
-        if (!loading && isAuthenticated && employeeLinks.length === 0) {
+        // Wait for user to be set — setUser and setEmployeeLinks are batched together,
+        // so this avoids a false redirect while employeeLinks is still loading.
+        if (!loading && user && isAuthenticated && employeeLinks.length === 0) {
             router.push("/dashboard/client");
         }
-    }, [loading, isAuthenticated, employeeLinks, router]);
+    }, [loading, user, isAuthenticated, employeeLinks, router]);
 
     useEffect(() => {
-        if (!user || employeeLinks.length === 0) return;
-        getEmployeeSchedule().then(({ data }) => {
-            setAppointments(data ?? []);
-            setApptLoading(false);
-        });
-    }, [user, employeeLinks]);
+        if (loading || !user || employeeLinks.length === 0) return;
+        getEmployeeSchedule()
+            .then(({ data }) => setAppointments(data ?? []))
+            .catch(() => setAppointments([]));
+    }, [user, employeeLinks, loading]);
+
+    const apptLoading = !loading && user !== null && employeeLinks.length > 0 && appointments === null;
 
     if (loading || apptLoading) {
         return (
@@ -149,7 +151,7 @@ export default function EmployeeDashboard() {
     const business = employeeLinks[0];
     const now = new Date();
 
-    const upcoming = appointments
+    const upcoming = (appointments ?? [])
         .filter(
             (a) => a.status !== "CANCELLED" && isAfter(new Date(a.slot.start_time), now),
         )
@@ -159,7 +161,7 @@ export default function EmployeeDashboard() {
                 new Date(b.slot.start_time).getTime(),
         );
 
-    const past = appointments
+    const past = (appointments ?? [])
         .filter(
             (a) =>
                 a.status === "CANCELLED" ||
@@ -184,7 +186,7 @@ export default function EmployeeDashboard() {
                 </Link>
                 <div className="flex-1">
                     <div className="flex items-center gap-2">
-                        <Briefcase className="w-5 h-5 text-red-500" />
+                        <Briefcase className="w-5 h-5 text-primary-500" />
                         <h1 className="text-2xl font-extrabold text-gray-900">
                             Work Schedule
                         </h1>
@@ -205,7 +207,7 @@ export default function EmployeeDashboard() {
                         Upcoming appointments
                     </p>
                     {upcoming[0] && (
-                        <p className="text-xs text-red-500 font-semibold mt-2 truncate">
+                        <p className="text-xs text-primary-500 font-semibold mt-2 truncate">
                             Next:{" "}
                             {format(
                                 new Date(upcoming[0].slot.start_time),

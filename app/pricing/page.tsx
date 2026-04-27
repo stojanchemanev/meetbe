@@ -63,7 +63,7 @@ const Page = () => {
         <div className="max-w-7xl mx-auto px-4 py-24 text-center">
             <h1 className="text-4xl md:text-6xl font-black text-gray-900 tracking-tight mb-6">
                 Transparent pricing <br />
-                <span className="text-red-600 italic font-medium">
+                <span className="text-primary-600 italic font-medium">
                     for growing businesses.
                 </span>
             </h1>
@@ -78,14 +78,14 @@ const Page = () => {
                         key={i}
                         className={`relative p-8 flex flex-col ${
                             plan.recommended
-                                ? "ring-2 ring-red-600 shadow-2xl scale-105 z-10 overflow-visible"
+                                ? "ring-2 ring-primary-600 shadow-2xl scale-105 z-10 overflow-visible"
                                 : plan.name === "Free"
                                 ? "border-gray-100 shadow-xl overflow-visible"
                                 : "border-gray-100 shadow-xl"
                         }`}
                     >
                         {plan.recommended && (
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-red-100">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-primary-100">
                                 Most Popular
                             </div>
                         )}
@@ -115,7 +115,7 @@ const Page = () => {
                                     key={j}
                                     className="flex items-center gap-3 text-sm text-gray-600 font-semibold"
                                 >
-                                    <div className="w-5 h-5 bg-red-50 text-red-600 rounded-full flex items-center justify-center shrink-0">
+                                    <div className="w-5 h-5 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center shrink-0">
                                         <Check className="w-3 h-3" />
                                     </div>
                                     {feat}

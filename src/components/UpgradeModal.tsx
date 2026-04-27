@@ -112,8 +112,8 @@ export default function UpgradeModal({
                     </button>
 
                     {/* Icon */}
-                    <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mb-5">
-                        <Zap className="w-6 h-6 text-red-500" />
+                    <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center mb-5">
+                        <Zap className="w-6 h-6 text-primary-500" />
                     </div>
 
                     <h2 className="text-xl font-extrabold text-gray-900 mb-1">
@@ -138,11 +138,11 @@ export default function UpgradeModal({
                         </div>
 
                         {/* Growth */}
-                        <div className="rounded-xl border-2 border-red-500 p-4 bg-red-50/30 relative">
-                            <span className="absolute -top-2.5 left-3 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
+                        <div className="rounded-xl border-2 border-primary-500 p-4 bg-primary-50/30 relative">
+                            <span className="absolute -top-2.5 left-3 bg-primary-500 text-white text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
                                 Recommended
                             </span>
-                            <p className="text-xs font-bold text-red-600 uppercase tracking-widest mb-3">
+                            <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-3">
                                 Growth
                             </p>
                             <ul className="space-y-1.5">
@@ -151,7 +151,7 @@ export default function UpgradeModal({
                                         key={f}
                                         className="flex items-center gap-1.5 text-sm text-gray-700 font-medium"
                                     >
-                                        <Check className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                                        <Check className="w-3.5 h-3.5 text-primary-500 shrink-0" />
                                         {f}
                                     </li>
                                 ))}
@@ -162,7 +162,7 @@ export default function UpgradeModal({
                     <Button
                         type="button"
                         onClick={handleUpgrade}
-                        className="w-full py-3 font-bold rounded-xl shadow-lg shadow-red-100 text-base"
+                        className="w-full py-3 font-bold rounded-xl shadow-lg shadow-primary-100 text-base"
                     >
                         <Zap className="w-4 h-4" />
                         Upgrade to Growth

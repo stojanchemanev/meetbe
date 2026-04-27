@@ -63,7 +63,7 @@ export default function FavoritesPage() {
                     Back to dashboard
                 </Link>
                 <div className="flex items-center gap-3">
-                    <Heart className="w-6 h-6 text-red-500 fill-current" />
+                    <Heart className="w-6 h-6 text-primary-500 fill-current" />
                     <h1 className="text-3xl font-extrabold text-gray-900">
                         My Favorites
                     </h1>
@@ -88,7 +88,7 @@ export default function FavoritesPage() {
                         <strong>Save</strong> to add them here.
                     </p>
                     <Link href="/browse">
-                        <Button className="py-3 px-6 font-bold rounded-xl shadow-lg shadow-red-100">
+                        <Button className="py-3 px-6 font-bold rounded-xl shadow-lg shadow-primary-100">
                             Browse Services
                         </Button>
                     </Link>
@@ -103,7 +103,7 @@ export default function FavoritesPage() {
                                 key={fav.id}
                                 className="overflow-hidden border-gray-100"
                             >
-                                <div className="relative h-32 bg-red-600">
+                                <div className="relative h-32 bg-primary-600">
                                     <Image
                                         src={biz.logo}
                                         alt={biz.name}
@@ -117,7 +117,7 @@ export default function FavoritesPage() {
                                             <h3 className="font-bold text-gray-900 truncate">
                                                 {biz.name}
                                             </h3>
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-red-600">
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-primary-600">
                                                 {biz.category}
                                             </span>
                                         </div>
@@ -148,7 +148,7 @@ export default function FavoritesPage() {
                                             className="px-3"
                                         >
                                             <Heart
-                                                className={`w-4 h-4 ${removing === biz.id ? "opacity-40" : "fill-current text-red-400"}`}
+                                                className={`w-4 h-4 ${removing === biz.id ? "opacity-40" : "fill-current text-primary-400"}`}
                                             />
                                         </Button>
                                     </div>

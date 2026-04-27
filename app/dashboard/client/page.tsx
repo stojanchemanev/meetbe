@@ -117,7 +117,7 @@ export default function ClientDashboard() {
             {/* Stat cards */}
             <div className="grid sm:grid-cols-3 gap-4 mb-8">
                 <Card className="p-6 border-gray-100">
-                    <Calendar className="w-5 h-5 text-red-500 mb-3" />
+                    <Calendar className="w-5 h-5 text-primary-500 mb-3" />
                     <p className="text-2xl font-extrabold text-gray-900">
                         {upcoming.length}
                     </p>
@@ -125,7 +125,7 @@ export default function ClientDashboard() {
                         Upcoming bookings
                     </p>
                     {next && (
-                        <p className="text-xs text-red-500 font-semibold mt-2 truncate">
+                        <p className="text-xs text-primary-500 font-semibold mt-2 truncate">
                             Next: {next.service?.name ?? "Appointment"} &middot;{" "}
                             {format(new Date(next.slot.start_time), "MMM d")}
                         </p>
@@ -133,7 +133,7 @@ export default function ClientDashboard() {
                 </Card>
 
                 <Card className="p-6 border-gray-100">
-                    <Search className="w-5 h-5 text-red-500 mb-3" />
+                    <Search className="w-5 h-5 text-primary-500 mb-3" />
                     <p className="text-2xl font-extrabold text-gray-900">
                         {appointments.length}
                     </p>
@@ -141,8 +141,8 @@ export default function ClientDashboard() {
                 </Card>
 
                 <Link href="/dashboard/client/profile">
-                    <Card className="p-6 border-gray-100 hover:border-red-200 transition-colors cursor-pointer">
-                        <UserIcon className="w-5 h-5 text-red-500 mb-3" />
+                    <Card className="p-6 border-gray-100 hover:border-primary-200 transition-colors cursor-pointer">
+                        <UserIcon className="w-5 h-5 text-primary-500 mb-3" />
                         <p className="text-2xl font-extrabold text-gray-900">
                             {profileCompletion}%
                         </p>
@@ -150,7 +150,7 @@ export default function ClientDashboard() {
                             Profile completion
                         </p>
                         {profileCompletion < 100 && (
-                            <p className="text-xs text-red-500 font-semibold mt-2 flex items-center gap-0.5">
+                            <p className="text-xs text-primary-500 font-semibold mt-2 flex items-center gap-0.5">
                                 Complete profile
                                 <ChevronRight className="w-3 h-3" />
                             </p>
@@ -162,10 +162,10 @@ export default function ClientDashboard() {
             {/* Employee banner */}
             {employeeLinks.length > 0 && (
                 <Link href="/dashboard/employee">
-                    <div className="flex items-center justify-between gap-3 bg-red-50 border border-red-100 rounded-xl px-5 py-4 mb-6 hover:border-red-300 transition-colors">
+                    <div className="flex items-center justify-between gap-3 bg-primary-50 border border-primary-100 rounded-xl px-5 py-4 mb-6 hover:border-primary-300 transition-colors">
                         <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
-                                <Briefcase className="w-4 h-4 text-red-600" />
+                            <div className="w-9 h-9 rounded-lg bg-primary-100 flex items-center justify-center shrink-0">
+                                <Briefcase className="w-4 h-4 text-primary-600" />
                             </div>
                             <div>
                                 <p className="text-sm font-bold text-gray-900">
@@ -177,7 +177,7 @@ export default function ClientDashboard() {
                                 </p>
                             </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-red-400 shrink-0" />
+                        <ChevronRight className="w-4 h-4 text-primary-400 shrink-0" />
                     </div>
                 </Link>
             )}
@@ -213,7 +213,7 @@ export default function ClientDashboard() {
                             appointment.
                         </p>
                         <Link href="/browse">
-                            <Button className="py-3 px-6 font-bold rounded-xl shadow-lg shadow-red-100">
+                            <Button className="py-3 px-6 font-bold rounded-xl shadow-lg shadow-primary-100">
                                 Browse Services
                             </Button>
                         </Link>

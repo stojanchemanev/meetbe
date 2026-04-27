@@ -15,7 +15,7 @@ export const NotificationBell = () => {
             >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
-                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-primary-500 rounded-full border-2 border-white"></span>
                 )}
             </button>
 
@@ -30,7 +30,7 @@ export const NotificationBell = () => {
                             <h3 className="font-bold text-gray-900">
                                 Notifications
                             </h3>
-                            <span className="text-[10px] font-black uppercase text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                            <span className="text-[10px] font-black uppercase text-secondary-600 bg-secondary-50 px-2 py-0.5 rounded-full">
                                 {unreadCount} New
                             </span>
                         </div>
@@ -48,14 +48,14 @@ export const NotificationBell = () => {
                                             setIsOpen(false);
                                         }}
                                         className={`w-full text-left p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors ${
-                                            !notif.read ? "bg-indigo-50/30" : ""
+                                            !notif.read ? "bg-secondary-50/30" : ""
                                         }`}
                                     >
                                         <div className="flex gap-3">
                                             <div
                                                 className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
                                                     !notif.read
-                                                        ? "bg-indigo-600"
+                                                        ? "bg-secondary-600"
                                                         : "bg-transparent"
                                                 }`}
                                             ></div>

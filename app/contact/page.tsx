@@ -35,7 +35,7 @@ const Page = () => {
             <div className="text-center mb-16">
                 <h1 className="text-4xl md:text-6xl font-black text-gray-900 tracking-tight mb-6">
                     Let&apos;s talk{" "}
-                    <span className="text-red-600 italic font-medium">
+                    <span className="text-primary-600 italic font-medium">
                         enterprise.
                     </span>
                 </h1>
@@ -61,7 +61,7 @@ const Page = () => {
 
                     <div className="space-y-5">
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-red-50 text-red-600 rounded-full flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center shrink-0">
                                 <Mail className="w-5 h-5" />
                             </div>
                             <div>
@@ -75,7 +75,7 @@ const Page = () => {
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-red-50 text-red-600 rounded-full flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center shrink-0">
                                 <Phone className="w-5 h-5" />
                             </div>
                             <div>
@@ -89,7 +89,7 @@ const Page = () => {
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-red-50 text-red-600 rounded-full flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center shrink-0">
                                 <MapPin className="w-5 h-5" />
                             </div>
                             <div>
@@ -108,7 +108,7 @@ const Page = () => {
                 <Card className="p-8 shadow-xl border-gray-100">
                     {submitted ? (
                         <div className="text-center py-8">
-                            <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <Send className="w-7 h-7" />
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -131,7 +131,7 @@ const Page = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder="Jane Smith"
-                                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
                                     />
                                 </div>
                                 <div>
@@ -143,7 +143,7 @@ const Page = () => {
                                         value={form.company}
                                         onChange={handleChange}
                                         placeholder="Acme Salons"
-                                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
                                     />
                                 </div>
                             </div>
@@ -159,7 +159,7 @@ const Page = () => {
                                     onChange={handleChange}
                                     required
                                     placeholder="jane@acme.com"
-                                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
                                 />
                             </div>
 
@@ -174,7 +174,7 @@ const Page = () => {
                                     required
                                     rows={5}
                                     placeholder="Tell us about your business, number of locations, and what you need..."
-                                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition resize-none"
+                                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition resize-none"
                                 />
                             </div>
 

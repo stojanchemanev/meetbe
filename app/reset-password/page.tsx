@@ -49,7 +49,7 @@ const Page = () => {
                 <div className="text-center mb-8">
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 font-bold text-2xl text-red-600 mb-6"
+                        className="inline-flex items-center gap-2 font-bold text-2xl text-primary-600 mb-6"
                     >
                         <Calendar className="w-8 h-8" />
                         <span>Meetme</span>
@@ -62,9 +62,9 @@ const Page = () => {
                 <Card className="p-8 border-gray-100">
                     {linkInvalid && (
                         <div className="text-center space-y-4">
-                            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                            <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto">
                                 <svg
-                                    className="w-6 h-6 text-red-600"
+                                    className="w-6 h-6 text-primary-600"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -86,7 +86,7 @@ const Page = () => {
                             </p>
                             <Link
                                 href="/forgot-password"
-                                className="block text-sm text-red-600 font-bold hover:underline mt-4"
+                                className="block text-sm text-primary-600 font-bold hover:underline mt-4"
                             >
                                 Request a new link
                             </Link>
@@ -118,7 +118,7 @@ const Page = () => {
                             </p>
                             <Link
                                 href="/login"
-                                className="block text-sm text-red-600 font-bold hover:underline mt-4"
+                                className="block text-sm text-primary-600 font-bold hover:underline mt-4"
                             >
                                 Sign in
                             </Link>
@@ -128,7 +128,7 @@ const Page = () => {
                     {!linkInvalid && stage === "ready" && (
                         <>
                             {error && (
-                                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                                <div className="mb-4 p-3 bg-primary-50 border border-primary-200 rounded-lg text-primary-700 text-sm">
                                     {error}
                                 </div>
                             )}
@@ -142,7 +142,7 @@ const Page = () => {
                                         onChange={(e) =>
                                             setPassword(e.target.value)
                                         }
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-red-500 transition-all"
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                                     />
                                     <input
                                         required
@@ -152,13 +152,13 @@ const Page = () => {
                                         onChange={(e) =>
                                             setConfirmPassword(e.target.value)
                                         }
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-red-500 transition-all"
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                                     />
                                 </div>
                                 <Button
                                     type="submit"
                                     disabled={submitting}
-                                    className="w-full py-4 text-md font-bold rounded-xl shadow-lg shadow-red-100 disabled:opacity-50"
+                                    className="w-full py-4 text-md font-bold rounded-xl shadow-lg shadow-primary-100 disabled:opacity-50"
                                 >
                                     {submitting
                                         ? "Updating..."

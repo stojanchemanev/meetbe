@@ -52,12 +52,12 @@ function ConfirmationModal({
                     </div>
 
                     <div className="space-y-4 mb-8">
-                        <div className="flex items-start gap-4 p-3 bg-red-50 rounded-xl">
-                            <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center shrink-0 text-red-600">
+                        <div className="flex items-start gap-4 p-3 bg-primary-50 rounded-xl">
+                            <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center shrink-0 text-primary-600">
                                 <CalendarIcon className="w-5 h-5" />
                             </div>
                             <div>
-                                <p className="text-xs font-black text-red-500 uppercase tracking-wider mb-1">
+                                <p className="text-xs font-black text-primary-500 uppercase tracking-wider mb-1">
                                     When
                                 </p>
                                 <p className="text-sm font-bold text-gray-900">

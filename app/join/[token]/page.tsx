@@ -59,7 +59,7 @@ export default function JoinPage() {
     if (loading || pageLoading) {
         return (
             <main className="min-h-screen flex items-center justify-center bg-gray-50">
-                <Loader2 className="w-6 h-6 animate-spin text-red-500" />
+                <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
             </main>
         );
     }
@@ -68,7 +68,7 @@ export default function JoinPage() {
         return (
             <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
                 <Card className="p-8 max-w-sm w-full text-center">
-                    <XCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+                    <XCircle className="w-10 h-10 text-primary-400 mx-auto mb-3" />
                     <h1 className="text-lg font-bold text-gray-900 mb-1">
                         Invalid invite
                     </h1>
@@ -109,8 +109,8 @@ export default function JoinPage() {
                             className="w-16 h-16 rounded-2xl object-cover"
                         />
                     ) : (
-                        <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center">
-                            <Building2 className="w-7 h-7 text-red-500" />
+                        <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center">
+                            <Building2 className="w-7 h-7 text-primary-500" />
                         </div>
                     )}
                 </div>
@@ -157,7 +157,7 @@ export default function JoinPage() {
                             </span>
                         </p>
                         {claimError && (
-                            <p className="text-xs text-red-600 text-center mb-3 font-medium">
+                            <p className="text-xs text-primary-600 text-center mb-3 font-medium">
                                 {claimError}
                             </p>
                         )}

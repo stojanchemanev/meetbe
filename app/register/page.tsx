@@ -110,7 +110,7 @@ const Page = () => {
                 <div className="text-center mb-8">
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 font-bold text-2xl text-red-600 mb-6"
+                        className="inline-flex items-center gap-2 font-bold text-2xl text-primary-600 mb-6"
                     >
                         <Calendar className="w-8 h-8" />
                         <span>Meetme</span>
@@ -122,7 +122,7 @@ const Page = () => {
 
                 <Card className="p-8 border-gray-100">
                     {error && (
-                        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                        <div className="mb-4 p-3 bg-primary-50 border border-primary-200 rounded-lg text-primary-700 text-sm">
                             {error}
                         </div>
                     )}
@@ -133,7 +133,7 @@ const Page = () => {
                                 onClick={() => setRole(UserRole.CLIENT)}
                                 className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all font-bold text-sm ${
                                     role === UserRole.CLIENT
-                                        ? "bg-red-50 border-red-600 text-red-700"
+                                        ? "bg-primary-50 border-primary-600 text-primary-700"
                                         : "bg-white text-gray-400 border-gray-100"
                                 }`}
                             >
@@ -144,7 +144,7 @@ const Page = () => {
                                 onClick={() => setRole(UserRole.BUSINESS)}
                                 className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all font-bold text-sm ${
                                     role === UserRole.BUSINESS
-                                        ? "bg-red-50 border-red-600 text-red-700"
+                                        ? "bg-primary-50 border-primary-600 text-primary-700"
                                         : "bg-white text-gray-400 border-gray-100"
                                 }`}
                             >
@@ -160,7 +160,7 @@ const Page = () => {
                                 placeholder="Full Name"
                                 value={formData.name}
                                 onChange={handleChange}
-                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-red-500 transition-all"
+                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                             />
                             <input
                                 required
@@ -169,7 +169,7 @@ const Page = () => {
                                 placeholder="Email"
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-red-500 transition-all"
+                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                             />
                             <input
                                 required
@@ -178,7 +178,7 @@ const Page = () => {
                                 placeholder="Password"
                                 value={formData.password}
                                 onChange={handleChange}
-                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-red-500 transition-all"
+                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                             />
                             <input
                                 required
@@ -187,14 +187,14 @@ const Page = () => {
                                 placeholder="Confirm Password"
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
-                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-red-500 transition-all"
+                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                             />
                         </div>
 
                         <Button
                             type="submit"
                             disabled={submitting}
-                            className="w-full py-4 text-md font-bold rounded-xl shadow-lg shadow-red-100 disabled:opacity-50"
+                            className="w-full py-4 text-md font-bold rounded-xl shadow-lg shadow-primary-100 disabled:opacity-50"
                         >
                             {submitting
                                 ? "Creating account..."
@@ -245,7 +245,7 @@ const Page = () => {
                     Already have an account?{" "}
                     <Link
                         href="/login"
-                        className="text-red-600 font-bold hover:underline"
+                        className="text-primary-600 font-bold hover:underline"
                     >
                         Sign in
                     </Link>

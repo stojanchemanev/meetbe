@@ -16,7 +16,7 @@ const SEX_OPTIONS = [
 ];
 
 const inputClass =
-    "w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent placeholder:text-gray-400 bg-white";
+    "w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-gray-400 bg-white";
 
 async function uploadAvatarToS3(file: File): Promise<string | null> {
     try {
@@ -180,7 +180,7 @@ export default function ClientProfilePage() {
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="relative w-24 h-24 rounded-full bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden hover:border-red-400 hover:bg-red-50 transition-colors group shrink-0"
+                            className="relative w-24 h-24 rounded-full bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden hover:border-primary-400 hover:bg-primary-50 transition-colors group shrink-0"
                         >
                             {displayAvatar ? (
                                 <>
@@ -196,8 +196,8 @@ export default function ClientProfilePage() {
                                 </>
                             ) : (
                                 <div className="flex flex-col items-center gap-1">
-                                    <Camera className="w-6 h-6 text-gray-300 group-hover:text-red-400 transition-colors" />
-                                    <span className="text-[10px] text-gray-400 group-hover:text-red-400 transition-colors">
+                                    <Camera className="w-6 h-6 text-gray-300 group-hover:text-primary-400 transition-colors" />
+                                    <span className="text-[10px] text-gray-400 group-hover:text-primary-400 transition-colors">
                                         Upload
                                     </span>
                                 </div>
@@ -214,7 +214,7 @@ export default function ClientProfilePage() {
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
-                                className="mt-2 text-xs font-semibold text-red-600 hover:underline"
+                                className="mt-2 text-xs font-semibold text-primary-600 hover:underline"
                             >
                                 Choose file
                             </button>
@@ -244,7 +244,7 @@ export default function ClientProfilePage() {
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                                 Full Name{" "}
-                                <span className="text-red-500">*</span>
+                                <span className="text-primary-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -338,13 +338,13 @@ export default function ClientProfilePage() {
                 </Card>
 
                 {error && (
-                    <p className="text-sm text-red-600 font-medium">{error}</p>
+                    <p className="text-sm text-primary-600 font-medium">{error}</p>
                 )}
 
                 <Button
                     type="submit"
                     disabled={saving}
-                    className="px-8 py-2.5 font-bold rounded-xl shadow-lg shadow-red-100"
+                    className="px-8 py-2.5 font-bold rounded-xl shadow-lg shadow-primary-100"
                 >
                     {saving ? (
                         <>

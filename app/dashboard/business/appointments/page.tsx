@@ -81,7 +81,7 @@ function CancelModal({
                     onChange={(e) => setReason(e.target.value)}
                     placeholder="e.g. Schedule conflict..."
                     rows={3}
-                    className="w-full text-sm border border-gray-200 rounded-xl p-3 text-gray-700 resize-none focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-50 mb-4"
+                    className="w-full text-sm border border-gray-200 rounded-xl p-3 text-gray-700 resize-none focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-50 mb-4"
                 />
                 <div className="grid grid-cols-2 gap-3">
                     <Button variant="outline" onClick={onClose}>
@@ -155,7 +155,7 @@ function AppointmentCard({
                             {format(start, "h:mm a")} – {format(end, "h:mm a")}
                         </span>
                         {appt.service && (
-                            <span className="text-xs font-bold text-red-600">
+                            <span className="text-xs font-bold text-primary-600">
                                 {appt.service.price}
                             </span>
                         )}
@@ -171,8 +171,8 @@ function AppointmentCard({
                                 className="w-6 h-6 rounded-full object-cover shrink-0"
                             />
                         ) : (
-                            <div className="w-6 h-6 rounded-full bg-red-50 flex items-center justify-center shrink-0">
-                                <User className="w-3 h-3 text-red-400" />
+                            <div className="w-6 h-6 rounded-full bg-primary-50 flex items-center justify-center shrink-0">
+                                <User className="w-3 h-3 text-primary-400" />
                             </div>
                         )}
                         <div className="min-w-0">
@@ -362,7 +362,7 @@ export default function BusinessAppointmentsPage() {
                 </Link>
                 <div>
                     <div className="flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-red-500" />
+                        <Calendar className="w-5 h-5 text-primary-500" />
                         <h1 className="text-2xl font-extrabold text-gray-900">
                             Bookings
                         </h1>

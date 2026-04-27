@@ -89,7 +89,7 @@ function CustomEvent({ event }: EventProps<CalendarEvent>) {
 
     if (markedForDelete) {
         return (
-            <div className="bg-red-50 border border-red-300 text-red-600 text-xs rounded px-1.5 h-full flex items-center overflow-hidden line-through">
+            <div className="bg-primary-50 border border-primary-300 text-primary-600 text-xs rounded px-1.5 h-full flex items-center overflow-hidden line-through">
                 <span className="truncate">Remove ×</span>
             </div>
         );
@@ -109,14 +109,14 @@ function EmployeeAvatar({ employee, selected, onClick }: { employee: Employee; s
             onClick={onClick}
             className={`flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all font-semibold text-sm ${
                 selected
-                    ? "bg-red-600 text-white shadow-sm"
+                    ? "bg-primary-600 text-white shadow-sm"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
         >
             {employee.avatar ? (
                 <img src={employee.avatar} alt={employee.name} className="w-6 h-6 rounded-full object-cover" />
             ) : (
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${selected ? "bg-red-500" : "bg-gray-300 text-gray-600"}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${selected ? "bg-primary-500" : "bg-gray-300 text-gray-600"}`}>
                     {employee.name.charAt(0).toUpperCase()}
                 </div>
             )}
@@ -490,7 +490,7 @@ export default function SchedulePage() {
             )}
 
             {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 flex items-center gap-2">
+                <div className="mb-4 p-3 bg-primary-50 border border-primary-200 rounded-xl text-sm text-primary-700 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     {error}
                 </div>
@@ -505,9 +505,9 @@ export default function SchedulePage() {
                             key={tpl.id}
                             type="button"
                             onClick={() => handleApplyTemplate(tpl.ranges)}
-                            className="group text-left p-4 rounded-xl border border-gray-200 bg-white hover:border-red-300 hover:bg-red-50 transition-all"
+                            className="group text-left p-4 rounded-xl border border-gray-200 bg-white hover:border-primary-300 hover:bg-primary-50 transition-all"
                         >
-                            <div className="flex items-center gap-2 text-red-500 mb-2 group-hover:text-red-600">
+                            <div className="flex items-center gap-2 text-primary-500 mb-2 group-hover:text-primary-600">
                                 {tpl.icon}
                                 <span className="text-sm font-bold text-gray-800 group-hover:text-gray-900">{tpl.label}</span>
                             </div>
@@ -522,7 +522,7 @@ export default function SchedulePage() {
             <div className="flex items-center gap-4 mb-4 text-xs text-gray-500">
                 <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-gray-200 border border-gray-300 inline-block" />Available</span>
                 <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-green-500 inline-block" />New (unsaved)</span>
-                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-red-100 border border-red-300 inline-block" />Marked for removal</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-primary-100 border border-primary-300 inline-block" />Marked for removal</span>
                 <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-blue-500 inline-block" />Booked</span>
                 {slotsLoading && <span className="text-gray-400 italic">Loading…</span>}
                 {selectedEmployee && !isSoleOperator && (
@@ -559,7 +559,7 @@ export default function SchedulePage() {
                                 <span className="text-green-600 font-bold">+{pendingAdd.length} to add</span>
                             )}
                             {pendingDelete.size > 0 && (
-                                <span className="text-red-600 font-bold">{pendingDelete.size} to remove</span>
+                                <span className="text-primary-600 font-bold">{pendingDelete.size} to remove</span>
                             )}
                         </div>
                         <Button

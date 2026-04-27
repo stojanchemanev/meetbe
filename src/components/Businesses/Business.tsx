@@ -256,7 +256,7 @@ const Business = (data: BusinessPayload | null) => {
 
     return (
         <div className="min-h-screen bg-[#fcfcfc]">
-            <div className="bg-red-600 h-64 w-full relative">
+            <div className="bg-primary-600 h-64 w-full relative">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                 <div className="absolute -bottom-12 left-4 md:left-24 p-1.5 bg-white rounded-2xl shadow-xl">
                     <Image
@@ -277,10 +277,10 @@ const Business = (data: BusinessPayload | null) => {
                         </h1>
                         <div className="flex flex-wrap gap-4 text-gray-600 mb-8">
                             <span className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm text-sm">
-                                <MapPin className="w-4 h-4 text-red-500" />{" "}
+                                <MapPin className="w-4 h-4 text-primary-500" />{" "}
                                 {data.address}
                             </span>
-                            <span className="flex items-center gap-2 bg-red-50 text-red-700 px-3 py-1.5 rounded-lg border border-red-100 font-bold uppercase tracking-widest text-[10px]">
+                            <span className="flex items-center gap-2 bg-primary-50 text-primary-700 px-3 py-1.5 rounded-lg border border-primary-100 font-bold uppercase tracking-widest text-[10px]">
                                 {data.category}
                             </span>
                             {user && (
@@ -289,8 +289,8 @@ const Business = (data: BusinessPayload | null) => {
                                     disabled={favLoading}
                                     className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm font-semibold transition-all ${
                                         isFav
-                                            ? "bg-red-50 border-red-200 text-red-600"
-                                            : "bg-white border-gray-100 text-gray-500 hover:border-red-200 hover:text-red-500"
+                                            ? "bg-primary-50 border-primary-200 text-primary-600"
+                                            : "bg-white border-gray-100 text-gray-500 hover:border-primary-200 hover:text-primary-500"
                                     }`}
                                 >
                                     <Heart
@@ -322,8 +322,8 @@ const Business = (data: BusinessPayload | null) => {
                                     onClick={() => handleEmployeeSelect(emp)}
                                     className={`p-6 rounded-xl border-2 transition-all text-center ${
                                         selectedEmployee?.id === emp.id
-                                            ? "bg-red-50/50 border-red-600 ring-4 ring-red-50 shadow-lg"
-                                            : "bg-white border-gray-100 hover:border-red-200 hover:shadow-md"
+                                            ? "bg-primary-50/50 border-primary-600 ring-4 ring-primary-50 shadow-lg"
+                                            : "bg-white border-gray-100 hover:border-primary-200 hover:shadow-md"
                                     }`}
                                 >
                                     <Image
@@ -336,7 +336,7 @@ const Business = (data: BusinessPayload | null) => {
                                     <h4 className="font-bold text-gray-900">
                                         {emp.name}
                                     </h4>
-                                    <p className="text-xs text-red-600 font-black uppercase tracking-widest mt-1">
+                                    <p className="text-xs text-primary-600 font-black uppercase tracking-widest mt-1">
                                         {emp.role}
                                     </p>
                                 </button>
@@ -364,8 +364,8 @@ const Business = (data: BusinessPayload | null) => {
                                         }
                                         className={`flex items-start justify-between p-5 rounded-xl border-2 transition-all text-left ${
                                             selectedService?.id === service.id
-                                                ? "bg-red-50/50 border-red-600 shadow-md"
-                                                : "bg-white border-gray-100 hover:border-red-200 hover:shadow-sm"
+                                                ? "bg-primary-50/50 border-primary-600 shadow-md"
+                                                : "bg-white border-gray-100 hover:border-primary-200 hover:shadow-sm"
                                         }`}
                                     >
                                         <div>
@@ -381,7 +381,7 @@ const Business = (data: BusinessPayload | null) => {
                                                 </span>
                                             </div>
                                         </div>
-                                        <span className="text-lg font-black text-red-600">
+                                        <span className="text-lg font-black text-primary-600">
                                             {service.price}
                                         </span>
                                     </button>
@@ -394,7 +394,7 @@ const Business = (data: BusinessPayload | null) => {
                 <aside className="lg:col-span-1">
                     <Card className="sticky top-24 p-8 border-none ring-1 ring-gray-100">
                         <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900">
-                            <Clock className="w-5 h-5 text-red-600" /> Book
+                            <Clock className="w-5 h-5 text-primary-600" /> Book
                             Session
                         </h3>
                         {capacityReached ? (
@@ -497,7 +497,7 @@ const Business = (data: BusinessPayload | null) => {
                                                         new Date(y, m - 1, d),
                                                     );
                                                 }}
-                                                className="w-full mb-4 p-2 text-sm border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:border-red-400"
+                                                className="w-full mb-4 p-2 text-sm border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:border-primary-400"
                                             />
                                             {slots.length === 0 ? (
                                                 <div className="col-span-2 p-4 bg-gray-50 rounded-lg text-sm text-gray-400 text-center italic">
@@ -521,7 +521,7 @@ const Business = (data: BusinessPayload | null) => {
                                                             slot.is_booked ||
                                                             hasPending
                                                                 ? "bg-gray-100 border-gray-100 text-gray-300 cursor-not-allowed line-through"
-                                                                : "bg-white border-gray-200 text-gray-700 hover:border-red-600 hover:bg-red-50 hover:text-red-700"
+                                                                : "bg-white border-gray-200 text-gray-700 hover:border-primary-600 hover:bg-primary-50 hover:text-primary-700"
                                                         }`}
                                                     >
                                                         {format(

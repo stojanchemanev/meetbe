@@ -57,7 +57,7 @@ const Browse = () => {
                         <input
                             type="text"
                             placeholder="Search services, shops, or locations..."
-                            className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-lg focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                            className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-lg focus:ring-2 focus:ring-secondary-500 transition-all outline-none"
                             value={search}
                             onChange={(e) => {
                                 setSearch(e.target.value);
@@ -76,7 +76,7 @@ const Browse = () => {
                             }}
                             className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                                 activeCategory === cat
-                                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100"
+                                    ? "bg-secondary-600 text-white shadow-lg shadow-secondary-100"
                                     : "bg-white text-gray-500 border hover:bg-gray-50"
                             }`}
                         >
@@ -105,7 +105,7 @@ const Browse = () => {
                                 <Button
                                     variant="ghost"
                                     onClick={() => setAiMatchedIds(null)}
-                                    className="text-indigo-600 font-bold"
+                                    className="text-secondary-600 font-bold"
                                 >
                                     Show All Again
                                 </Button>
@@ -137,7 +137,7 @@ const Browse = () => {
                                         key={business.id}
                                         className="group"
                                     >
-                                        <Card className="hover:ring-2 hover:ring-indigo-500 transition-all border-none shadow-md hover:shadow-xl">
+                                        <Card className="hover:ring-2 hover:ring-secondary-500 transition-all border-none shadow-md hover:shadow-xl">
                                             <Image
                                                 src={business.logo}
                                                 alt={business.name}
@@ -148,11 +148,11 @@ const Browse = () => {
                                             />
                                             <div className="p-6">
                                                 <div className="flex justify-between items-start mb-3">
-                                                    <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest bg-indigo-50 px-2 py-1 rounded">
+                                                    <span className="text-[10px] font-bold text-secondary-600 uppercase tracking-widest bg-secondary-50 px-2 py-1 rounded">
                                                         {business.category}
                                                     </span>
                                                 </div>
-                                                <h3 className="text-xl font-bold mb-2 group-hover:text-indigo-600 transition-colors">
+                                                <h3 className="text-xl font-bold mb-2 group-hover:text-secondary-600 transition-colors">
                                                     {business.name}
                                                 </h3>
                                                 <div className="flex items-center gap-1 text-sm text-gray-500 mb-4">

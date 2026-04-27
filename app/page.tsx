@@ -7,7 +7,7 @@ export default function Home() {
         <main className="max-w-7xl mx-auto px-4 py-20 text-center">
             <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tight mb-6">
                 Grow your business <br />
-                <span className="text-indigo-600">without the headache.</span>
+                <span className="text-secondary-600">without the headache.</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
                 The all-in-one platform for local businesses to manage staff,
@@ -17,7 +17,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link
                     href="/register"
-                    className="w-full sm:w-auto bg-indigo-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-indigo-700 transition-all transform hover:scale-105 shadow-xl shadow-indigo-100"
+                    className="w-full sm:w-auto bg-secondary-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-secondary-700 transition-all transform hover:scale-105 shadow-xl shadow-secondary-100"
                 >
                     Register My Business
                 </Link>
@@ -51,7 +51,7 @@ export default function Home() {
                         key={i}
                         className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
                     >
-                        <feat.icon className="w-10 h-10 text-indigo-600 mb-4" />
+                        <feat.icon className="w-10 h-10 text-secondary-600 mb-4" />
                         <h3 className="text-xl font-bold mb-2">{feat.title}</h3>
                         <p className="text-gray-600">{feat.desc}</p>
                     </div>

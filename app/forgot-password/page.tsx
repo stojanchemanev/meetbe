@@ -34,7 +34,7 @@ const Page = () => {
                 <div className="text-center mb-8">
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 font-bold text-2xl text-red-600 mb-6"
+                        className="inline-flex items-center gap-2 font-bold text-2xl text-primary-600 mb-6"
                     >
                         <Calendar className="w-8 h-8" />
                         <span>Meetme</span>
@@ -61,7 +61,7 @@ const Page = () => {
                             </p>
                             <Link
                                 href="/login"
-                                className="block text-sm text-red-600 font-bold hover:underline mt-4"
+                                className="block text-sm text-primary-600 font-bold hover:underline mt-4"
                             >
                                 Back to sign in
                             </Link>
@@ -69,7 +69,7 @@ const Page = () => {
                     ) : (
                         <>
                             {error && (
-                                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                                <div className="mb-4 p-3 bg-primary-50 border border-primary-200 rounded-lg text-primary-700 text-sm">
                                     {error}
                                 </div>
                             )}
@@ -80,12 +80,12 @@ const Page = () => {
                                     placeholder="Email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-red-500 transition-all"
+                                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-medium outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                                 />
                                 <Button
                                     type="submit"
                                     disabled={submitting}
-                                    className="w-full py-4 text-md font-bold rounded-xl shadow-lg shadow-red-100 disabled:opacity-50"
+                                    className="w-full py-4 text-md font-bold rounded-xl shadow-lg shadow-primary-100 disabled:opacity-50"
                                 >
                                     {submitting ? "Sending..." : "Send reset link"}
                                 </Button>
@@ -99,7 +99,7 @@ const Page = () => {
                         Remember your password?{" "}
                         <Link
                             href="/login"
-                            className="text-red-600 font-bold hover:underline"
+                            className="text-primary-600 font-bold hover:underline"
                         >
                             Sign in
                         </Link>

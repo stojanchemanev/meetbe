@@ -63,7 +63,7 @@ export default function BusinessDashboard() {
                 <span
                     className={`flex items-center gap-1.5 text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${
                         plan === "growth"
-                            ? "bg-red-500 text-white"
+                            ? "bg-primary-500 text-white"
                             : "bg-gray-100 text-gray-500"
                     }`}
                 >
@@ -75,17 +75,17 @@ export default function BusinessDashboard() {
             {plan === "free" && (
                 <div className={`mb-6 rounded-xl px-5 py-4 flex items-start gap-3 border ${
                     uniqueClients >= PLAN_LIMITS.free.clients
-                        ? "bg-red-50 border-red-200"
+                        ? "bg-primary-50 border-primary-200"
                         : "bg-amber-50 border-amber-100"
                 }`}>
-                    <Zap className={`w-4 h-4 shrink-0 mt-0.5 ${uniqueClients >= PLAN_LIMITS.free.clients ? "text-red-500" : "text-amber-500"}`} />
+                    <Zap className={`w-4 h-4 shrink-0 mt-0.5 ${uniqueClients >= PLAN_LIMITS.free.clients ? "text-primary-500" : "text-amber-500"}`} />
                     <div className="flex-1 min-w-0">
                         {uniqueClients >= PLAN_LIMITS.free.clients ? (
                             <>
-                                <p className="text-sm font-bold text-red-800">
+                                <p className="text-sm font-bold text-primary-800">
                                     You&apos;ve reached your 10-client limit — new clients can&apos;t book right now.
                                 </p>
-                                <p className="text-xs text-red-700 mt-0.5">
+                                <p className="text-xs text-primary-700 mt-0.5">
                                     Upgrade to Growth to accept unlimited clients and never miss a booking.
                                 </p>
                             </>
@@ -110,7 +110,7 @@ export default function BusinessDashboard() {
 
             <div className="grid sm:grid-cols-3 gap-4 mb-10">
                 <Card className="p-6 border-gray-100">
-                    <Calendar className="w-5 h-5 text-red-500 mb-3" />
+                    <Calendar className="w-5 h-5 text-primary-500 mb-3" />
                     <p className="text-2xl font-extrabold text-gray-900">
                         {totalBookings}
                     </p>
@@ -122,7 +122,7 @@ export default function BusinessDashboard() {
                     )}
                 </Card>
                 <Card className="p-6 border-gray-100">
-                    <Users className="w-5 h-5 text-red-500 mb-3" />
+                    <Users className="w-5 h-5 text-primary-500 mb-3" />
                     <p className="text-2xl font-extrabold text-gray-900">{uniqueClients}</p>
                     <p className="text-sm text-gray-500 mt-1">Unique clients</p>
                     {plan === "free" && (
@@ -130,7 +130,7 @@ export default function BusinessDashboard() {
                     )}
                 </Card>
                 <Card className="p-6 border-gray-100">
-                    <BarChart2 className="w-5 h-5 text-red-500 mb-3" />
+                    <BarChart2 className="w-5 h-5 text-primary-500 mb-3" />
                     <p className="text-2xl font-extrabold text-gray-900">—</p>
                     <p className="text-sm text-gray-500 mt-1">Revenue this month</p>
                 </Card>
@@ -138,8 +138,8 @@ export default function BusinessDashboard() {
 
             {/* Quick-action cards */}
             <div className="grid sm:grid-cols-3 gap-4 mb-6">
-                <Card className="p-6 border-gray-100 hover:border-red-100 transition-colors">
-                    <Settings className="w-8 h-8 text-red-400 mb-3" />
+                <Card className="p-6 border-gray-100 hover:border-primary-100 transition-colors">
+                    <Settings className="w-8 h-8 text-primary-400 mb-3" />
                     <h2 className="text-base font-bold text-gray-800 mb-1">
                         Business Profile
                     </h2>
@@ -147,15 +147,15 @@ export default function BusinessDashboard() {
                         Set your name, category, address, and upload a logo.
                     </p>
                     <Link href="/dashboard/business/setup">
-                        <Button className="py-2 px-5 font-bold rounded-xl shadow-sm shadow-red-100 text-sm">
+                        <Button className="py-2 px-5 font-bold rounded-xl shadow-sm shadow-primary-100 text-sm">
                             <Briefcase className="w-4 h-4" />
                             Edit Profile
                         </Button>
                     </Link>
                 </Card>
 
-                <Card className="p-6 border-gray-100 hover:border-red-100 transition-colors">
-                    <Tag className="w-8 h-8 text-red-400 mb-3" />
+                <Card className="p-6 border-gray-100 hover:border-primary-100 transition-colors">
+                    <Tag className="w-8 h-8 text-primary-400 mb-3" />
                     <h2 className="text-base font-bold text-gray-800 mb-1">
                         Services &amp; Staff
                     </h2>
@@ -164,20 +164,20 @@ export default function BusinessDashboard() {
                         performs what.
                     </p>
                     <Link href="/dashboard/business/services">
-                        <Button className="py-2 px-5 font-bold rounded-xl shadow-sm shadow-red-100 text-sm">
+                        <Button className="py-2 px-5 font-bold rounded-xl shadow-sm shadow-primary-100 text-sm">
                             <Users className="w-4 h-4" />
                             Manage
                         </Button>
                     </Link>
                 </Card>
 
-                <Card className="p-6 border-gray-100 hover:border-red-100 transition-colors relative">
+                <Card className="p-6 border-gray-100 hover:border-primary-100 transition-colors relative">
                     {pendingCount > 0 && (
                         <span className="absolute top-4 right-4 text-[10px] font-black bg-amber-500 text-white px-2 py-0.5 rounded-full">
                             {pendingCount} pending
                         </span>
                     )}
-                    <Calendar className="w-8 h-8 text-red-400 mb-3" />
+                    <Calendar className="w-8 h-8 text-primary-400 mb-3" />
                     <h2 className="text-base font-bold text-gray-800 mb-1">
                         Bookings
                     </h2>
@@ -185,7 +185,7 @@ export default function BusinessDashboard() {
                         Review requests, confirm appointments, and manage your schedule.
                     </p>
                     <Link href="/dashboard/business/appointments">
-                        <Button className="py-2 px-5 font-bold rounded-xl shadow-sm shadow-red-100 text-sm">
+                        <Button className="py-2 px-5 font-bold rounded-xl shadow-sm shadow-primary-100 text-sm">
                             <Calendar className="w-4 h-4" />
                             View Bookings
                         </Button>
@@ -195,14 +195,14 @@ export default function BusinessDashboard() {
 
             {/* Schedule quick-action */}
             <div className="grid sm:grid-cols-3 gap-4">
-                <Card className="p-6 border-gray-100 hover:border-red-100 transition-colors">
-                    <CalendarDays className="w-8 h-8 text-red-400 mb-3" />
+                <Card className="p-6 border-gray-100 hover:border-primary-100 transition-colors">
+                    <CalendarDays className="w-8 h-8 text-primary-400 mb-3" />
                     <h2 className="text-base font-bold text-gray-800 mb-1">Schedule</h2>
                     <p className="text-sm text-gray-500 mb-5">
                         Set available timeslots per staff member for clients to book.
                     </p>
                     <Link href="/dashboard/business/schedule">
-                        <Button className="py-2 px-5 font-bold rounded-xl shadow-sm shadow-red-100 text-sm">
+                        <Button className="py-2 px-5 font-bold rounded-xl shadow-sm shadow-primary-100 text-sm">
                             <CalendarDays className="w-4 h-4" />
                             Manage Schedule
                         </Button>
