@@ -1,10 +1,15 @@
+"use client";
+
 import React from "react";
 import { Check } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Card } from "@components/ui/Card";
 import { Button } from "@components/ui/Button";
 
 const Page = () => {
+    const router = useRouter();
+
     const plans = [
         {
             name: "Free",
@@ -18,6 +23,7 @@ const Page = () => {
             ],
             buttonText: "Start for Free — Forever",
             recommended: false,
+            onClick: () => router.push("/register"),
         },
         {
             name: "Growth",
@@ -33,6 +39,7 @@ const Page = () => {
             ],
             buttonText: "Get Started",
             recommended: true,
+            onClick: () => router.push("/register?plan=growth"),
         },
         {
             name: "Enterprise",
@@ -48,6 +55,7 @@ const Page = () => {
             ],
             buttonText: "Contact Sales",
             recommended: false,
+            onClick: () => router.push("/contact"),
         },
     ];
 
@@ -117,6 +125,7 @@ const Page = () => {
                         <Button
                             variant={plan.recommended ? "primary" : "outline"}
                             className="w-full py-4 text-md font-bold rounded-xl"
+                            onClick={plan.onClick}
                         >
                             {plan.buttonText}
                         </Button>
