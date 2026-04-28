@@ -80,3 +80,88 @@ export async function sendCapacityNotificationEmail({
 
     if (error) console.error("[resend] sendCapacityNotificationEmail:", error);
 }
+
+export async function sendAppointmentConfirmedEmail({
+    clientEmail,
+    clientName,
+    businessName,
+    serviceName,
+    slotDate,
+    slotTime,
+}: {
+    clientEmail: string;
+    clientName: string;
+    businessName: string;
+    serviceName: string;
+    slotDate: string;
+    slotTime: string;
+}) {
+    const [{ render }, React, { default: AppointmentConfirmed }] = await Promise.all([
+        import("@react-email/render"),
+        import("react"),
+        import("@/emails/AppointmentConfirmed"),
+    ]);
+
+    const html = await render(
+        React.createElement(AppointmentConfirmed, {
+            clientName,
+            businessName,
+            serviceName,
+            slotDate,
+            slotTime,
+        }),
+    );
+
+    const { error } = await resend.emails.send({
+        from: FROM,
+        to: resolveRecipient(clientEmail),
+        subject: `Your appointment at ${businessName} is confirmed`,
+        html,
+    });
+
+    if (error) console.error("[resend] sendAppointmentConfirmedEmail:", error);
+}
+
+export async function sendAppointmentCancelledEmail({
+    clientEmail,
+    clientName,
+    businessName,
+    serviceName,
+    slotDate,
+    slotTime,
+    cancellationReason,
+}: {
+    clientEmail: string;
+    clientName: string;
+    businessName: string;
+    serviceName: string;
+    slotDate: string;
+    slotTime: string;
+    cancellationReason?: string;
+}) {
+    const [{ render }, React, { default: AppointmentCancelled }] = await Promise.all([
+        import("@react-email/render"),
+        import("react"),
+        import("@/emails/AppointmentCancelled"),
+    ]);
+
+    const html = await render(
+        React.createElement(AppointmentCancelled, {
+            clientName,
+            businessName,
+            serviceName,
+            slotDate,
+            slotTime,
+            cancellationReason,
+        }),
+    );
+
+    const { error } = await resend.emails.send({
+        from: FROM,
+        to: resolveRecipient(clientEmail),
+        subject: `Your appointment at ${businessName} has been cancelled`,
+        html,
+    });
+
+    if (error) console.error("[resend] sendAppointmentCancelledEmail:", error);
+}

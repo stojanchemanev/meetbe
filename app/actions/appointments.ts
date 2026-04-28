@@ -4,7 +4,12 @@ import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { AppointmentWithRelations } from "@/src/types";
 import { PLAN_LIMITS, CLIENT_LIMIT_ERROR } from "@/src/lib/plans";
-import { sendCapacityNotificationEmail, sendBookingRequestEmail } from "@/src/lib/email";
+import {
+    sendCapacityNotificationEmail,
+    sendBookingRequestEmail,
+    sendAppointmentConfirmedEmail,
+    sendAppointmentCancelledEmail,
+} from "@/src/lib/email";
 
 export type EmployeeAppointment = {
     id: string;
@@ -365,7 +370,7 @@ export async function confirmAppointment(
     // Verify the appointment belongs to this owner's business
     const { data: appointment } = await supabase
         .from("appointments")
-        .select("status, business_id")
+        .select("status, business_id, client_id, slot_id, service_id")
         .eq("id", appointmentId)
         .single();
 
@@ -374,7 +379,7 @@ export async function confirmAppointment(
 
     const { data: business } = await supabase
         .from("businesses")
-        .select("owner_id")
+        .select("owner_id, name")
         .eq("id", appointment.business_id)
         .single();
 
@@ -386,6 +391,32 @@ export async function confirmAppointment(
         .eq("id", appointmentId);
 
     if (error) return { error: error.message };
+
+    // Notify the client (best-effort, fire-and-forget)
+    const [{ data: clientProfile }, { data: slot }, { data: service }] = await Promise.all([
+        supabase.from("users").select("email, name").eq("id", appointment.client_id).single(),
+        supabase.from("timeslots").select("start_time").eq("id", appointment.slot_id).single(),
+        supabase.from("services").select("name").eq("id", appointment.service_id).single(),
+    ]);
+
+    if (clientProfile?.email && slot?.start_time) {
+        const slotDate = new Date(slot.start_time).toLocaleDateString("en-US", {
+            weekday: "long", year: "numeric", month: "long", day: "numeric",
+        });
+        const slotTime = new Date(slot.start_time).toLocaleTimeString("en-US", {
+            hour: "2-digit", minute: "2-digit",
+        });
+
+        sendAppointmentConfirmedEmail({
+            clientEmail: clientProfile.email,
+            clientName: clientProfile.name ?? "there",
+            businessName: business?.name ?? "the business",
+            serviceName: service?.name ?? "your service",
+            slotDate,
+            slotTime,
+        }).catch((err) => console.error("[email] sendAppointmentConfirmedEmail failed:", err));
+    }
+
     return { error: null };
 }
 
@@ -403,7 +434,7 @@ export async function cancelAppointmentAsOwner(
 
     const { data: appointment } = await supabase
         .from("appointments")
-        .select("slot_id, status, business_id")
+        .select("slot_id, status, business_id, client_id, service_id")
         .eq("id", appointmentId)
         .single();
 
@@ -412,7 +443,7 @@ export async function cancelAppointmentAsOwner(
 
     const { data: business } = await supabase
         .from("businesses")
-        .select("owner_id")
+        .select("owner_id, name")
         .eq("id", appointment.business_id)
         .single();
 
@@ -433,6 +464,32 @@ export async function cancelAppointmentAsOwner(
         .from("timeslots")
         .update({ is_booked: false, booked_by: null })
         .eq("id", appointment.slot_id);
+
+    // Notify the client (best-effort, fire-and-forget)
+    const [{ data: clientProfile }, { data: slot }, { data: service }] = await Promise.all([
+        supabase.from("users").select("email, name").eq("id", appointment.client_id).single(),
+        supabase.from("timeslots").select("start_time").eq("id", appointment.slot_id).single(),
+        supabase.from("services").select("name").eq("id", appointment.service_id).single(),
+    ]);
+
+    if (clientProfile?.email && slot?.start_time) {
+        const slotDate = new Date(slot.start_time).toLocaleDateString("en-US", {
+            weekday: "long", year: "numeric", month: "long", day: "numeric",
+        });
+        const slotTime = new Date(slot.start_time).toLocaleTimeString("en-US", {
+            hour: "2-digit", minute: "2-digit",
+        });
+
+        sendAppointmentCancelledEmail({
+            clientEmail: clientProfile.email,
+            clientName: clientProfile.name ?? "there",
+            businessName: business?.name ?? "the business",
+            serviceName: service?.name ?? "your service",
+            slotDate,
+            slotTime,
+            cancellationReason: reason || undefined,
+        }).catch((err) => console.error("[email] sendAppointmentCancelledEmail failed:", err));
+    }
 
     return { error: null };
 }
