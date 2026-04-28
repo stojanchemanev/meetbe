@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { AppointmentWithRelations } from "@/src/types";
 import { PLAN_LIMITS, CLIENT_LIMIT_ERROR } from "@/src/lib/plans";
-import { sendCapacityNotificationEmail } from "@/src/lib/email";
+import { sendCapacityNotificationEmail, sendBookingRequestEmail } from "@/src/lib/email";
 
 export type EmployeeAppointment = {
     id: string;
@@ -317,6 +317,36 @@ export async function createAppointment(payload: {
         .eq("id", payload.slotId);
 
     if (slotError) return { error: slotError.message };
+
+    // Notify the business owner (best-effort, fire-and-forget)
+    if (business?.owner_id) {
+        const [{ data: ownerProfile }, { data: slot }, { data: service }] = await Promise.all([
+            supabase.from("users").select("email, name").eq("id", business.owner_id).single(),
+            supabase.from("timeslots").select("start_time").eq("id", payload.slotId).single(),
+            supabase.from("services").select("name").eq("id", payload.serviceId).single(),
+        ]);
+
+        if (ownerProfile?.email && slot?.start_time) {
+            const slotDate = new Date(slot.start_time).toLocaleDateString("en-US", {
+                weekday: "long", year: "numeric", month: "long", day: "numeric",
+            });
+            const slotTime = new Date(slot.start_time).toLocaleTimeString("en-US", {
+                hour: "2-digit", minute: "2-digit",
+            });
+
+            const { data: clientProfile } = await supabase
+                .from("users").select("name").eq("id", user.id).single();
+
+            sendBookingRequestEmail({
+                ownerEmail: ownerProfile.email,
+                businessName: business.name ?? "your business",
+                clientName: clientProfile?.name ?? "A client",
+                serviceName: service?.name ?? "a service",
+                slotDate,
+                slotTime,
+            }).catch((err) => console.error("[email] sendBookingRequestEmail failed:", err));
+        }
+    }
 
     return { error: null };
 }
