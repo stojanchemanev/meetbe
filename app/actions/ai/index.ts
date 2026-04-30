@@ -8,7 +8,7 @@ export async function AiSearch(query: string) {
       .from("businesses")
       .select("id, name, category, description, address");
 
-    const apiKey = process.env.NEXT_PUBLIC_API_KEY || process.env.GENAI_API_KEY;
+    const apiKey = process.env.GENAI_API_KEY;
     if (!apiKey) {
       // fallback to local keyword matching if no GenAI key
       const queryTokens = query.toLowerCase().split(/\s+/).filter(Boolean);
