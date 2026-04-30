@@ -25,17 +25,17 @@ const LoginContent = () => {
             : "",
     );
 
-    useEffect(() => {
-        if (user && !loading) {
-            const destination =
-                redirectTo !== "/"
-                    ? redirectTo
-                    : user.role === UserRole.BUSINESS
-                      ? "/dashboard/business"
-                      : "/dashboard/client";
-            router.push(destination);
-        }
-    }, [user, loading, router, redirectTo]);
+    // useEffect(() => {
+    //     if (user && !loading) {
+    //         const destination =
+    //             redirectTo !== "/"
+    //                 ? redirectTo
+    //                 : user.role === UserRole.BUSINESS
+    //                   ? "/dashboard/business"
+    //                   : "/dashboard/client";
+    //         router.push(destination);
+    //     }
+    // }, [user, loading, router, redirectTo]);
 
     const handleOAuth = async (provider: "google" | "facebook") => {
         setError("");
@@ -60,18 +60,29 @@ const LoginContent = () => {
             setSubmitting(false);
             return;
         }
+        try {
+            const result = await login(email, password);
+            console.log("result", result);
 
-        const result = await login(email, password);
-        console.log("result", result);
+            if (!result.success) {
+                setError(result.error || "Login failed");
+                setSubmitting(false);
+                return;
+            }
 
-        if (!result.success) {
-            setError(result.error || "Login failed");
+            const destination =
+                redirectTo !== "/"
+                    ? redirectTo
+                    : user?.role === UserRole.BUSINESS
+                      ? "/dashboard/business"
+                      : "/dashboard/client";
+            router.push(destination);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (err: unknown) {
+            setError("An unexpected error occurred. Please try again.");
+        } finally {
             setSubmitting(false);
-            return;
         }
-
-        setSubmitting(false);
-        // useEffect handles redirect once user profile is loaded
     };
 
     return (

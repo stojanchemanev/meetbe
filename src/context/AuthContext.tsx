@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useEffect, useMemo, createContext, useContext } from "react";
+import React, {
+    useState,
+    useEffect,
+    useMemo,
+    createContext,
+    useContext,
+} from "react";
 import { User, UserRole, EmployeeLink } from "../types";
 import { signUp } from "@/app/actions/auth";
 import { createClient } from "@/utils/supabase/client";
@@ -37,7 +43,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
     const [user, setUser] = useState<User | null>(null);
     const [employeeLinks, setEmployeeLinks] = useState<EmployeeLink[]>([]);
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(
+        null,
+    );
     const supabase = useMemo(() => createClient(), []);
 
     const loading = isAuthenticated === null;
@@ -133,7 +141,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     const refreshUser = async () => {
-        const { data: { user: authUser } } = await supabase.auth.getUser();
+        const {
+            data: { user: authUser },
+        } = await supabase.auth.getUser();
         if (!authUser) return;
         const { data, error } = await supabase
             .from("users")
@@ -145,7 +155,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     return (
         <AuthContext.Provider
-            value={{ user, employeeLinks, isAuthenticated, login, register, logout, refreshUser, loading }}
+            value={{
+                user,
+                employeeLinks,
+                isAuthenticated,
+                login,
+                register,
+                logout,
+                refreshUser,
+                loading,
+            }}
         >
             {children}
         </AuthContext.Provider>
