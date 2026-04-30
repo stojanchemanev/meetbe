@@ -46,12 +46,7 @@ export const AISearchAssistant: React.FC<{
 
             const res = await AiSearch(JSON.stringify({ query }));
 
-            console.log("AI Search - calling server route, query=", query);
             if (!res.ok) {
-                console.warn(
-                    "AI server route failed, falling back to local search",
-                    res.status,
-                );
                 const matched = localFallbackSearch(query);
                 onResult(matched.length ? matched : []);
                 return;

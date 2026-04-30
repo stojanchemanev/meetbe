@@ -22,7 +22,6 @@ const Business = (data: BusinessPayload | null) => {
     const { addNotification } = useNotifications();
     const { addAppointment } = useBookings();
     const { user } = useAuth();
-    console.log("user", user);
 
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
         null,
