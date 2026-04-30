@@ -1,0 +1,7 @@
+-- Add extended profile fields to users table
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS phone   VARCHAR(20),
+  ADD COLUMN IF NOT EXISTS age     SMALLINT CHECK (age > 0 AND age < 150),
+  ADD COLUMN IF NOT EXISTS sex     VARCHAR(20) CHECK (sex IN ('MALE','FEMALE','OTHER','PREFER_NOT_TO_SAY')),
+  ADD COLUMN IF NOT EXISTS address TEXT,
+  ADD COLUMN IF NOT EXISTS city    VARCHAR(100);

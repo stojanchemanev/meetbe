@@ -72,7 +72,7 @@ export default function CancelModal({
                             onChange={(e) => setReason(e.target.value)}
                             placeholder="e.g. Schedule conflict, feeling unwell..."
                             rows={3}
-                            className="w-full text-sm border border-gray-200 rounded-xl p-3 text-gray-700 resize-none focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-50"
+                            className="w-full text-sm border border-gray-200 rounded-xl p-3 text-gray-700 resize-none focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-50"
                         />
                         {reason.length === 0 && (
                             <p className="text-[11px] text-gray-400 mt-1">

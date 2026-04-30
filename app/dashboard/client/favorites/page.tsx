@@ -10,7 +10,7 @@ import { getFavorites, removeFavorite } from "@/app/actions/favorites";
 import { Favorite } from "@/src/types";
 
 export default function FavoritesPage() {
-    const { user, loading } = useAuth();
+    const { user, loading, isAuthenticated } = useAuth();
     const router = useRouter();
 
     const [favorites, setFavorites] = useState<Favorite[]>([]);
@@ -18,10 +18,10 @@ export default function FavoritesPage() {
     const [removing, setRemoving] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!loading && !user) {
+        if (isAuthenticated === false) {
             router.push("/login");
         }
-    }, [user, loading, router]);
+    }, [isAuthenticated, router]);
 
     useEffect(() => {
         if (!user) return;
@@ -42,7 +42,15 @@ export default function FavoritesPage() {
         setRemoving(null);
     };
 
-    if (loading || !user) return null;
+    if (loading || !user) return (
+        <main className="max-w-4xl mx-auto px-6 py-12">
+            <div className="animate-pulse space-y-4">
+                <div className="h-8 bg-gray-100 rounded w-1/3" />
+                <div className="h-48 bg-gray-100 rounded-xl" />
+                <div className="h-48 bg-gray-100 rounded-xl" />
+            </div>
+        </main>
+    );
 
     return (
         <main className="max-w-4xl mx-auto px-6 py-12">
@@ -55,7 +63,7 @@ export default function FavoritesPage() {
                     Back to dashboard
                 </Link>
                 <div className="flex items-center gap-3">
-                    <Heart className="w-6 h-6 text-red-500 fill-current" />
+                    <Heart className="w-6 h-6 text-primary-500 fill-current" />
                     <h1 className="text-3xl font-extrabold text-gray-900">
                         My Favorites
                     </h1>
@@ -80,7 +88,7 @@ export default function FavoritesPage() {
                         <strong>Save</strong> to add them here.
                     </p>
                     <Link href="/browse">
-                        <Button className="py-3 px-6 font-bold rounded-xl shadow-lg shadow-red-100">
+                        <Button className="py-3 px-6 font-bold rounded-xl shadow-lg shadow-primary-100">
                             Browse Services
                         </Button>
                     </Link>
@@ -95,7 +103,7 @@ export default function FavoritesPage() {
                                 key={fav.id}
                                 className="overflow-hidden border-gray-100"
                             >
-                                <div className="relative h-32 bg-red-600">
+                                <div className="relative h-32 bg-primary-600">
                                     <Image
                                         src={biz.logo}
                                         alt={biz.name}
@@ -109,7 +117,7 @@ export default function FavoritesPage() {
                                             <h3 className="font-bold text-gray-900 truncate">
                                                 {biz.name}
                                             </h3>
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-red-600">
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-primary-600">
                                                 {biz.category}
                                             </span>
                                         </div>
@@ -140,7 +148,7 @@ export default function FavoritesPage() {
                                             className="px-3"
                                         >
                                             <Heart
-                                                className={`w-4 h-4 ${removing === biz.id ? "opacity-40" : "fill-current text-red-400"}`}
+                                                className={`w-4 h-4 ${removing === biz.id ? "opacity-40" : "fill-current text-primary-400"}`}
                                             />
                                         </Button>
                                     </div>

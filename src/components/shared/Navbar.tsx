@@ -2,14 +2,15 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Calendar, LogOut } from "lucide-react";
+import { Briefcase, Calendar, LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { UserRole } from "../../types";
 import { NotificationBell } from "../shared/NotificationBell";
 
 export const Navbar = () => {
-    const { user, logout } = useAuth();
+    const { user, employeeLinks, logout } = useAuth();
     const router = useRouter();
+    const isEmployee = employeeLinks.length > 0;
 
     const handleLogout = async () => {
         await logout();
@@ -21,7 +22,7 @@ export const Navbar = () => {
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                 <Link
                     href="/"
-                    className="flex items-center gap-2 font-bold text-2xl text-red-600"
+                    className="flex items-center gap-2 font-bold text-2xl text-primary-600"
                 >
                     <Calendar className="w-8 h-8" />
                     <span className="tracking-tight">Meetbe</span>
@@ -29,36 +30,45 @@ export const Navbar = () => {
                 <div className="flex items-center gap-2 md:gap-4">
                     <Link
                         href="/pricing"
-                        className="text-sm font-semibold text-gray-600 hover:text-red-600 hidden sm:inline"
+                        className="text-sm font-semibold text-gray-600 hover:text-primary-600 hidden sm:inline"
                     >
                         Pricing
                     </Link>
                     <Link
                         href="/browse"
-                        className="text-sm font-semibold text-gray-600 hover:text-red-600"
+                        className="text-sm font-semibold text-gray-600 hover:text-primary-600"
                     >
                         Browse
                     </Link>
                     {user ? (
                         <>
                             <NotificationBell />
+                            {isEmployee && (
+                                <Link
+                                    href="/dashboard/employee"
+                                    className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-primary-600"
+                                >
+                                    <Briefcase className="w-4 h-4" />
+                                    Work Schedule
+                                </Link>
+                            )}
                             <Link
                                 href={
                                     user.role === UserRole.BUSINESS
                                         ? "/dashboard/business"
                                         : "/dashboard/client"
                                 }
-                                className="text-sm font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100"
+                                className="text-sm font-bold text-primary-600 bg-primary-50 px-3 py-1.5 rounded-lg border border-primary-100"
                             >
                                 Dashboard
                             </Link>
                             <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-full border border-gray-200">
-                                <div className="w-7 h-7 bg-red-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold shadow-md shadow-red-200">
+                                <div className="w-7 h-7 bg-primary-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold shadow-md shadow-primary-200">
                                     {user.name.charAt(0).toUpperCase()}
                                 </div>
                                 <button
                                     onClick={handleLogout}
-                                    className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                                    className="p-1 text-gray-400 hover:text-primary-600 transition-colors"
                                 >
                                     <LogOut className="w-4 h-4" />
                                 </button>
@@ -67,7 +77,7 @@ export const Navbar = () => {
                     ) : (
                         <Link
                             href="/login"
-                            className="px-4 py-2 text-sm font-bold text-gray-700 hover:text-red-600"
+                            className="px-4 py-2 text-sm font-bold text-gray-700 hover:text-primary-600"
                         >
                             Login
                         </Link>

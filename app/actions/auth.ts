@@ -2,7 +2,38 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
-import { User, UserRole } from "@/src/types";
+import { UserRole } from "@/src/types";
+
+export async function signInWithOAuth(
+  provider: "google" | "facebook",
+  role: UserRole = UserRole.CLIENT,
+  next: string = "/",
+) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+
+
+  const scopes: Record<string, string> = {
+    google: "openid email profile https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/user.phonenumbers.read",
+    facebook: "email,public_profile,user_birthday",
+  };
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: `${siteUrl}/auth/callback?role=${role}&next=${encodeURIComponent(next)}`,
+      scopes: scopes[provider],
+    },
+  });
+
+  console.log('data', data)
+
+  if (error) return { error: error.message };
+  return { url: data.url };
+}
 
 export async function signUp(email: string, password: string, name: string, role: UserRole) {
   const cookieStore = await cookies();
@@ -66,5 +97,25 @@ export async function signOut() {
   }
 }
 
+export async function requestPasswordReset(email: string) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl}/auth/reset-callback`,
+  });
 
+  if (error) return { error: error.message };
+  return { success: true };
+}
+
+export async function updatePassword(password: string) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) return { error: error.message };
+  return { success: true };
+}

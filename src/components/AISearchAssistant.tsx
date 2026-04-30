@@ -78,10 +78,10 @@ export const AISearchAssistant: React.FC<{
     };
 
     return (
-        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 mb-8">
+        <div className="bg-secondary-50 border border-secondary-100 rounded-2xl p-6 mb-8">
             <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-5 h-5 text-indigo-600 animate-pulse" />
-                <h3 className="font-bold text-indigo-900">
+                <Sparkles className="w-5 h-5 text-secondary-600 animate-pulse" />
+                <h3 className="font-bold text-secondary-900">
                     AI Personal Assistant
                 </h3>
             </div>
@@ -89,14 +89,14 @@ export const AISearchAssistant: React.FC<{
                 <input
                     type="text"
                     placeholder="e.g., 'Looking for a relaxing facial and maybe a hair touch up today'"
-                    className="flex-1 px-4 py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium"
+                    className="flex-1 px-4 py-3 rounded-xl border border-secondary-200 focus:ring-2 focus:ring-secondary-500 outline-none text-sm font-medium"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                 />
                 <Button
                     disabled={isThinking}
                     type="submit"
-                    className="shrink-0 bg-indigo-600 text-white px-6"
+                    className="shrink-0 bg-secondary-600 text-white px-6"
                 >
                     {isThinking ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -106,7 +106,7 @@ export const AISearchAssistant: React.FC<{
                 </Button>
             </form>
             {error && (
-                <p className="text-xs text-red-500 mt-2 font-medium">{error}</p>
+                <p className="text-xs text-primary-500 mt-2 font-medium">{error}</p>
             )}
             <p className="text-xs text-gray-500 mt-2">
                 Tip: If AI results fail, the app will try a local keyword search

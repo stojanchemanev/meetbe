@@ -154,6 +154,33 @@ export async function getBusiness(businessId: string) {
   }
 }
 
+export async function updateSoleOperator(
+  businessId: string,
+  soleOperator: boolean,
+) {
+  try {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "Not authenticated" };
+
+    const { error } = await supabase
+      .from("businesses")
+      .update({ sole_operator: soleOperator, updated_at: new Date().toISOString() })
+      .eq("id", businessId)
+      .eq("owner_id", user.id);
+
+    if (error) return { error: error.message };
+    return { success: true };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "An error occurred";
+    return { error: message };
+  }
+}
+
 export async function getUserBusiness() {
   try {
     const cookieStore = await cookies();

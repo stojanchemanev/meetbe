@@ -1,11 +1,13 @@
 "use client";
-import React, { useState, useEffect, createContext, useContext } from "react";
-import { User, UserRole } from "../types";
+import React, { useState, useEffect, useMemo, createContext, useContext } from "react";
+import { User, UserRole, EmployeeLink } from "../types";
 import { signUp } from "@/app/actions/auth";
 import { createClient } from "@/utils/supabase/client";
 
 interface AuthContextType {
     user: User | null;
+    employeeLinks: EmployeeLink[];
+    isAuthenticated: boolean | null; // null = checking, true/false = known
     login: (
         email: string,
         password: string,
@@ -17,7 +19,8 @@ interface AuthContextType {
         role: UserRole,
     ) => Promise<{ success: boolean; error?: string }>;
     logout: () => Promise<void>;
-    loading: boolean;
+    refreshUser: () => Promise<void>;
+    loading: boolean; // true while auth state is unknown
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,8 +36,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-    const supabase = createClient();
+    const [employeeLinks, setEmployeeLinks] = useState<EmployeeLink[]>([]);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const supabase = useMemo(() => createClient(), []);
+
+    const loading = isAuthenticated === null;
 
     useEffect(() => {
         const fetchProfile = async (authId: string): Promise<User | null> => {
@@ -48,25 +54,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             return (data as User) ?? null;
         };
 
+        const fetchEmployeeLinks = async (
+            authId: string,
+        ): Promise<EmployeeLink[]> => {
+            const { data, error } = await supabase
+                .from("employees")
+                .select("id, business_id, businesses(name)")
+                .eq("user_id", authId);
+
+            if (error || !data) return [];
+            return data.map(
+                (row: {
+                    id: string;
+                    business_id: string;
+                    businesses: { name: string }[] | null;
+                }) => ({
+                    id: row.id,
+                    business_id: row.business_id,
+                    business_name: Array.isArray(row.businesses)
+                        ? (row.businesses[0]?.name ?? "")
+                        : "",
+                }),
+            );
+        };
+
         // onAuthStateChange fires after session is rehydrated from cookies —
         // this is the only reliable place to read auth state on the client.
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (session?.user) {
-                const profile = await fetchProfile(session.user.id);
+                setIsAuthenticated(true); // loading becomes false immediately
+                const [profile, links] = await Promise.all([
+                    fetchProfile(session.user.id),
+                    fetchEmployeeLinks(session.user.id),
+                ]);
                 setUser(profile);
+                setEmployeeLinks(links);
             } else {
+                setIsAuthenticated(false);
                 setUser(null);
+                setEmployeeLinks([]);
             }
-            setLoading(false);
         });
 
         return () => subscription.unsubscribe();
     }, [supabase]);
 
     const login = async (email: string, password: string) => {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
         if (error) return { success: false, error: error.message };
         // onAuthStateChange will fire and set the user automatically
         return { success: true };
@@ -93,9 +132,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         return { success: true };
     };
 
+    const refreshUser = async () => {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) return;
+        const { data, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", authUser.id)
+            .maybeSingle();
+        if (!error && data) setUser(data as User);
+    };
+
     return (
         <AuthContext.Provider
-            value={{ user, login, register, logout, loading }}
+            value={{ user, employeeLinks, isAuthenticated, login, register, logout, refreshUser, loading }}
         >
             {children}
         </AuthContext.Provider>
