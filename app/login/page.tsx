@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { Calendar } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
@@ -8,7 +8,7 @@ import { Card, Button } from "@/src/components/ui";
 import { signInWithOAuth } from "@/app/actions/auth";
 import { UserRole } from "@/src/types";
 
-const Page = () => {
+const LoginContent = () => {
     const { login, loading, user } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -211,5 +211,11 @@ const Page = () => {
         </div>
     );
 };
+
+const Page = () => (
+    <Suspense>
+        <LoginContent />
+    </Suspense>
+);
 
 export default Page;

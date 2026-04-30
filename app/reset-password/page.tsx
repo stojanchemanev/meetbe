@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import Link from "next/link";
 import { Calendar } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ import { updatePassword } from "@/app/actions/auth";
 
 type Stage = "ready" | "success";
 
-const Page = () => {
+const ResetPasswordContent = () => {
     const searchParams = useSearchParams();
     const linkInvalid = searchParams.get("error") === "invalid";
     const [stage, setStage] = useState<Stage>("ready");
@@ -172,5 +172,11 @@ const Page = () => {
         </div>
     );
 };
+
+const Page = () => (
+    <Suspense>
+        <ResetPasswordContent />
+    </Suspense>
+);
 
 export default Page;
