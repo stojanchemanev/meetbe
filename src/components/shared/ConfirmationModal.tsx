@@ -2,23 +2,7 @@ import { format } from "date-fns";
 import { X, CalendarIcon, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { Button } from "../ui";
-
-interface TimeSlot {
-    start_time: Date;
-    end_time: Date;
-}
-
-interface Employee {
-    name: string;
-    role: string;
-    avatar: string;
-}
-
-interface Service {
-    name: string;
-    duration: number;
-    price: string;
-}
+import { Employee, Service, TimeSlot } from "@/src/types";
 
 interface BookingConfirmationModalProps {
     slotToConfirm: TimeSlot;

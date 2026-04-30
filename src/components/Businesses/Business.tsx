@@ -138,7 +138,7 @@ const Business = (data: BusinessPayload | null) => {
                         document.head.appendChild(element);
                     }
                 }
-                element.setAttribute("content", tag.content);
+                element?.setAttribute("content", tag.content);
             });
 
             return () => {
@@ -406,13 +406,20 @@ const Business = (data: BusinessPayload | null) => {
                                     Fully Booked Right Now
                                 </h4>
                                 <p className="text-sm text-gray-500 mb-5 leading-relaxed">
-                                    {data?.name} isn&apos;t accepting new clients at the moment.
-                                    We&apos;ve let them know you&apos;re interested — they&apos;ll reach out to you as soon as a spot opens up.
+                                    {data?.name} isn&apos;t accepting new
+                                    clients at the moment. We&apos;ve let them
+                                    know you&apos;re interested — they&apos;ll
+                                    reach out to you as soon as a spot opens up.
                                 </p>
                                 <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 text-left">
-                                    <p className="text-xs font-black uppercase tracking-widest text-amber-700 mb-1">What happens next?</p>
+                                    <p className="text-xs font-black uppercase tracking-widest text-amber-700 mb-1">
+                                        What happens next?
+                                    </p>
                                     <p className="text-xs text-amber-800 leading-relaxed">
-                                        The business has been notified via email. They&apos;ll contact you directly when they&apos;re ready to accept new bookings.
+                                        The business has been notified via
+                                        email. They&apos;ll contact you directly
+                                        when they&apos;re ready to accept new
+                                        bookings.
                                     </p>
                                 </div>
                             </div>
@@ -566,8 +573,8 @@ const Business = (data: BusinessPayload | null) => {
             {slotToConfirm && (
                 <BookingConfirmationModal
                     slotToConfirm={slotToConfirm}
-                    selectedEmployee={selectedEmployee}
-                    selectedService={selectedService}
+                    selectedEmployee={selectedEmployee!}
+                    selectedService={selectedService!}
                     onClose={() => setSlotToConfirm(null)}
                     onConfirm={confirmBooking}
                 />

@@ -7,7 +7,7 @@ export interface Notification {
     message: string;
     time: string;
     read: boolean;
-    type: "booking" | "system" | "billing";
+    type: "booking" | "system" | "billing" | "error";
 }
 
 interface NotificationContextType {
@@ -18,12 +18,12 @@ interface NotificationContextType {
     addNotification: (
         title: string,
         message: string,
-        type: Notification["type"]
+        type: Notification["type"],
     ) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
-    undefined
+    undefined,
 );
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -44,7 +44,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const markAsRead = (id: string) => {
         setNotifications((prev) =>
-            prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+            prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
         );
     };
 
@@ -55,7 +55,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     const addNotification = (
         title: string,
         message: string,
-        type: Notification["type"]
+        type: Notification["type"],
     ) => {
         const newNotif: Notification = {
             id: Math.random().toString(36).substr(2, 9),
@@ -91,7 +91,7 @@ export const useNotifications = () => {
     const context = useContext(NotificationContext);
     if (!context)
         throw new Error(
-            "useNotifications must be used within NotificationProvider"
+            "useNotifications must be used within NotificationProvider",
         );
     return context;
 };

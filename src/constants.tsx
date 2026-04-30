@@ -1,4 +1,4 @@
-import { Business, Employee } from "./types";
+import { Business, Employee, Service } from "./types";
 
 export const MOCK_BUSINESSES: Business[] = [
     {
