@@ -43,7 +43,7 @@ const Page = () => {
                         Reset your password
                     </h2>
                     <p className="text-sm text-gray-500 mt-2">
-                        Enter your email and we'll send you a reset link
+                        Enter your email and we&apos;ll send you a reset link
                     </p>
                 </div>
 
@@ -51,13 +51,28 @@ const Page = () => {
                     {sent ? (
                         <div className="text-center space-y-4">
                             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                                <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                <svg
+                                    className="w-6 h-6 text-green-600"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M5 13l4 4L19 7"
+                                    />
                                 </svg>
                             </div>
-                            <p className="text-gray-700 font-medium">Check your email</p>
+                            <p className="text-gray-700 font-medium">
+                                Check your email
+                            </p>
                             <p className="text-sm text-gray-500">
-                                We sent a password reset link to <span className="font-semibold text-gray-700">{email}</span>
+                                We sent a password reset link to{" "}
+                                <span className="font-semibold text-gray-700">
+                                    {email}
+                                </span>
                             </p>
                             <Link
                                 href="/login"
@@ -87,7 +102,9 @@ const Page = () => {
                                     disabled={submitting}
                                     className="w-full py-4 text-md font-bold rounded-xl shadow-lg shadow-primary-100 disabled:opacity-50"
                                 >
-                                    {submitting ? "Sending..." : "Send reset link"}
+                                    {submitting
+                                        ? "Sending..."
+                                        : "Send reset link"}
                                 </Button>
                             </form>
                         </>

@@ -3,8 +3,24 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, AlertCircle, Sunrise, Sunset, Clock } from "lucide-react";
-import { Calendar, dateFnsLocalizer, View, SlotInfo, EventProps } from "react-big-calendar";
-import { format, parse, startOfWeek, getDay, startOfDay, endOfDay, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
+import {
+    Calendar,
+    dateFnsLocalizer,
+    View,
+    SlotInfo,
+    EventProps,
+} from "react-big-calendar";
+import {
+    format,
+    parse,
+    startOfWeek,
+    getDay,
+    startOfDay,
+    endOfDay,
+    startOfMonth,
+    endOfMonth,
+    eachDayOfInterval,
+} from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useAuth } from "@/src/context/AuthContext";
@@ -47,7 +63,13 @@ type CalendarEvent = {
     };
 };
 
-function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => void }) {
+function ViewSwitcher({
+    view,
+    onChange,
+}: {
+    view: View;
+    onChange: (v: View) => void;
+}) {
     return (
         <div className="flex gap-1 p-1 bg-gray-100 rounded-xl">
             {(["day", "week", "month"] as const).map((v) => (
@@ -102,7 +124,15 @@ function CustomEvent({ event }: EventProps<CalendarEvent>) {
     );
 }
 
-function EmployeeAvatar({ employee, selected, onClick }: { employee: Employee; selected: boolean; onClick: () => void }) {
+function EmployeeAvatar({
+    employee,
+    selected,
+    onClick,
+}: {
+    employee: Employee;
+    selected: boolean;
+    onClick: () => void;
+}) {
     return (
         <button
             type="button"
@@ -114,9 +144,15 @@ function EmployeeAvatar({ employee, selected, onClick }: { employee: Employee; s
             }`}
         >
             {employee.avatar ? (
-                <img src={employee.avatar} alt={employee.name} className="w-6 h-6 rounded-full object-cover" />
+                <img
+                    src={employee.avatar}
+                    alt={employee.name}
+                    className="w-6 h-6 rounded-full object-cover"
+                />
             ) : (
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${selected ? "bg-primary-500" : "bg-gray-300 text-gray-600"}`}>
+                <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${selected ? "bg-primary-500" : "bg-gray-300 text-gray-600"}`}
+                >
                     {employee.name.charAt(0).toUpperCase()}
                 </div>
             )}
@@ -127,7 +163,8 @@ function EmployeeAvatar({ employee, selected, onClick }: { employee: Employee; s
 
 function getVisibleRange(view: View, date: Date): { start: Date; end: Date } {
     if (view === "day") return { start: startOfDay(date), end: endOfDay(date) };
-    if (view === "month") return { start: startOfMonth(date), end: endOfMonth(date) };
+    if (view === "month")
+        return { start: startOfMonth(date), end: endOfMonth(date) };
     // week — Mon to Sun
     const start = startOfWeek(date, { weekStartsOn: 1 });
     const end = new Date(start);
@@ -168,11 +205,19 @@ const TEMPLATES: {
         description: "8–12 AM & 4–8 PM",
         subtitle: "8 hourly slots per day",
         icon: <Clock className="w-5 h-5" />,
-        ranges: [{ from: 8, to: 12 }, { from: 16, to: 20 }],
+        ranges: [
+            { from: 8, to: 12 },
+            { from: 16, to: 20 },
+        ],
     },
 ];
 
-function slotsOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date): boolean {
+function slotsOverlap(
+    aStart: Date,
+    aEnd: Date,
+    bStart: Date,
+    bEnd: Date,
+): boolean {
     return aStart < bEnd && aEnd > bStart;
 }
 
@@ -191,8 +236,17 @@ function buildSlotsFromRanges(
                 const end = new Date(day);
                 end.setHours(h + 1, 0, 0, 0);
                 const hasConflict =
-                    existingSaved.some((s) => slotsOverlap(new Date(s.start_time), new Date(s.end_time), start, end)) ||
-                    existingPending.some((p) => slotsOverlap(p.start, p.end, start, end));
+                    existingSaved.some((s) =>
+                        slotsOverlap(
+                            new Date(s.start_time),
+                            new Date(s.end_time),
+                            start,
+                            end,
+                        ),
+                    ) ||
+                    existingPending.some((p) =>
+                        slotsOverlap(p.start, p.end, start, end),
+                    );
                 if (!hasConflict) {
                     result.push({ localId: crypto.randomUUID(), start, end });
                 }
@@ -207,7 +261,9 @@ export default function SchedulePage() {
     const router = useRouter();
 
     const [employees, setEmployees] = useState<Employee[]>([]);
-    const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(
+        null,
+    );
     const [businessId, setBusinessId] = useState<string | null>(null);
     const [isSoleOperator, setIsSoleOperator] = useState(false);
 
@@ -223,7 +279,9 @@ export default function SchedulePage() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [switchWarning, setSwitchWarning] = useState<string | null>(null);
-    const [pendingEmployeeSwitch, setPendingEmployeeSwitch] = useState<string | null>(null);
+    const [pendingEmployeeSwitch, setPendingEmployeeSwitch] = useState<
+        string | null
+    >(null);
 
     const hasPendingChanges = pendingAdd.length > 0 || pendingDelete.size > 0;
 
@@ -236,7 +294,10 @@ export default function SchedulePage() {
         if (!user) return;
         (async () => {
             const { business } = await getUserBusiness();
-            if (!business) { router.push("/dashboard/business/setup"); return; }
+            if (!business) {
+                router.push("/dashboard/business/setup");
+                return;
+            }
 
             setBusinessId(business.id);
             setIsSoleOperator(!!business.sole_operator);
@@ -251,33 +312,50 @@ export default function SchedulePage() {
     }, [user, router]);
 
     // Fetch slots whenever selected employee, view, or date changes
-    const fetchSlots = useCallback(async (bizId: string, empId: string, v: View, d: Date) => {
-        setSlotsLoading(true);
-        const { start, end } = getVisibleRange(v, d);
-        const { data, error: fetchError } = await getTimeslots(bizId, empId, start, end);
-        if (fetchError) { setError(fetchError); setSlotsLoading(false); return; }
-        setSavedSlots((prev) => {
-            const existingIds = new Set(prev.map((s) => s.id));
-            const fresh = (data ?? []).filter((s) => !existingIds.has(s.id));
-            return [...prev, ...fresh];
-        });
-        setSlotsLoading(false);
-    }, []);
+    const fetchSlots = useCallback(
+        async (bizId: string, empId: string, v: View, d: Date) => {
+            setSlotsLoading(true);
+            const { start, end } = getVisibleRange(v, d);
+            const { data, error: fetchError } = await getTimeslots(
+                bizId,
+                empId,
+                start,
+                end,
+            );
+            if (fetchError) {
+                setError(fetchError);
+                setSlotsLoading(false);
+                return;
+            }
+            setSavedSlots((prev) => {
+                const existingIds = new Set(prev.map((s) => s.id));
+                const fresh = (data ?? []).filter(
+                    (s) => !existingIds.has(s.id),
+                );
+                return [...prev, ...fresh];
+            });
+            setSlotsLoading(false);
+        },
+        [],
+    );
 
     useEffect(() => {
         if (!businessId || !selectedEmployeeId) return;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchSlots(businessId, selectedEmployeeId, view, date);
     }, [businessId, selectedEmployeeId, view, date, fetchSlots]);
 
     const events: CalendarEvent[] = useMemo(() => {
-        const visibleSaved = savedSlots.filter((s) => s.employee_id === selectedEmployeeId);
+        const visibleSaved = savedSlots.filter(
+            (s) => s.employee_id === selectedEmployeeId,
+        );
         const saved: CalendarEvent[] = visibleSaved.map((slot) => ({
             id: slot.id,
             title: slot.is_booked
                 ? "Booked"
                 : pendingDelete.has(slot.id)
-                ? "Remove"
-                : "Available",
+                  ? "Remove"
+                  : "Available",
             start: new Date(slot.start_time),
             end: new Date(slot.end_time),
             resource: {
@@ -292,23 +370,34 @@ export default function SchedulePage() {
             title: "New slot",
             start: p.start,
             end: p.end,
-            resource: { type: "pending-add", is_booked: false, markedForDelete: false },
+            resource: {
+                type: "pending-add",
+                is_booked: false,
+                markedForDelete: false,
+            },
         }));
 
         return [...saved, ...pending];
     }, [savedSlots, pendingAdd, pendingDelete, selectedEmployeeId]);
 
-    const handleSelectSlot = useCallback((slotInfo: SlotInfo) => {
-        if (view === "month") {
-            setView("day");
-            setDate(slotInfo.start);
-            return;
-        }
-        setPendingAdd((prev) => [
-            ...prev,
-            { localId: crypto.randomUUID(), start: slotInfo.start, end: slotInfo.end },
-        ]);
-    }, [view]);
+    const handleSelectSlot = useCallback(
+        (slotInfo: SlotInfo) => {
+            if (view === "month") {
+                setView("day");
+                setDate(slotInfo.start);
+                return;
+            }
+            setPendingAdd((prev) => [
+                ...prev,
+                {
+                    localId: crypto.randomUUID(),
+                    start: slotInfo.start,
+                    end: slotInfo.end,
+                },
+            ]);
+        },
+        [view],
+    );
 
     const handleSelectEvent = useCallback((event: CalendarEvent) => {
         if (event.resource.type === "pending-add") {
@@ -347,14 +436,23 @@ export default function SchedulePage() {
 
         // Remove deleted slots and clear pending state, then refetch fresh
         setSavedSlots((prev) =>
-            prev.filter((s) => !pendingDelete.has(s.id) || s.employee_id !== selectedEmployeeId),
+            prev.filter(
+                (s) =>
+                    !pendingDelete.has(s.id) ||
+                    s.employee_id !== selectedEmployeeId,
+            ),
         );
         setPendingAdd([]);
         setPendingDelete(new Set());
 
         // Refetch current window to get real IDs for newly created slots
         const { start, end } = getVisibleRange(view, date);
-        const { data } = await getTimeslots(businessId, selectedEmployeeId, start, end);
+        const { data } = await getTimeslots(
+            businessId,
+            selectedEmployeeId,
+            start,
+            end,
+        );
         if (data) {
             setSavedSlots((prev) => {
                 const existingIds = new Set(prev.map((s) => s.id));
@@ -389,7 +487,7 @@ export default function SchedulePage() {
 
     const handleApplyTemplate = (ranges: TemplateRange[]) => {
         let targetView = view;
-        let targetDate = date;
+        const targetDate = date;
 
         // Month view: switch to week view for the current anchor date
         if (view === "month") {
@@ -398,10 +496,21 @@ export default function SchedulePage() {
         }
 
         const { start, end } = getVisibleRange(targetView, targetDate);
-        const days = eachDayOfInterval({ start: startOfDay(start), end: startOfDay(end) });
-        const visibleSaved = savedSlots.filter((s) => s.employee_id === selectedEmployeeId);
-        const newSlots = buildSlotsFromRanges(days, ranges, visibleSaved, pendingAdd);
-        if (newSlots.length > 0) setPendingAdd((prev) => [...prev, ...newSlots]);
+        const days = eachDayOfInterval({
+            start: startOfDay(start),
+            end: startOfDay(end),
+        });
+        const visibleSaved = savedSlots.filter(
+            (s) => s.employee_id === selectedEmployeeId,
+        );
+        const newSlots = buildSlotsFromRanges(
+            days,
+            ranges,
+            visibleSaved,
+            pendingAdd,
+        );
+        if (newSlots.length > 0)
+            setPendingAdd((prev) => [...prev, ...newSlots]);
     };
 
     if (authLoading || loading) {
@@ -421,12 +530,19 @@ export default function SchedulePage() {
             <main className="max-w-6xl mx-auto px-6 py-12">
                 <div className="flex items-center gap-3 mb-8">
                     <Link href="/dashboard/business">
-                        <Button variant="ghost" className="px-2 py-2"><ArrowLeft className="w-4 h-4" /></Button>
+                        <Button variant="ghost" className="px-2 py-2">
+                            <ArrowLeft className="w-4 h-4" />
+                        </Button>
                     </Link>
-                    <h1 className="text-2xl font-extrabold text-gray-900">Schedule</h1>
+                    <h1 className="text-2xl font-extrabold text-gray-900">
+                        Schedule
+                    </h1>
                 </div>
                 <Card className="p-10 text-center border-gray-100">
-                    <p className="text-gray-500 mb-4">No staff members found. Add employees first before managing the schedule.</p>
+                    <p className="text-gray-500 mb-4">
+                        No staff members found. Add employees first before
+                        managing the schedule.
+                    </p>
                     <Link href="/dashboard/business/services">
                         <Button>Go to Services &amp; Staff</Button>
                     </Link>
@@ -442,12 +558,17 @@ export default function SchedulePage() {
             {/* Header */}
             <div className="flex items-center gap-3 mb-6 flex-wrap">
                 <Link href="/dashboard/business">
-                    <Button variant="ghost" className="px-2 py-2"><ArrowLeft className="w-4 h-4" /></Button>
+                    <Button variant="ghost" className="px-2 py-2">
+                        <ArrowLeft className="w-4 h-4" />
+                    </Button>
                 </Link>
                 <div className="flex-1 min-w-0">
-                    <h1 className="text-2xl font-extrabold text-gray-900">Schedule</h1>
+                    <h1 className="text-2xl font-extrabold text-gray-900">
+                        Schedule
+                    </h1>
                     <p className="text-sm text-gray-500 mt-0.5">
-                        Click or drag to add available timeslots. Click an event to remove it.
+                        Click or drag to add available timeslots. Click an event
+                        to remove it.
                     </p>
                 </div>
                 <ViewSwitcher view={view} onChange={setView} />
@@ -456,7 +577,9 @@ export default function SchedulePage() {
             {/* Employee selector (hidden for sole operators with 1 employee) */}
             {!isSoleOperator && employees.length > 1 && (
                 <div className="mb-5">
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Staff member</p>
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                        Staff member
+                    </p>
                     <div className="flex flex-wrap gap-2">
                         {employees.map((emp) => (
                             <EmployeeAvatar
@@ -475,14 +598,30 @@ export default function SchedulePage() {
                 <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                     <div className="flex-1">
-                        <p className="text-sm font-semibold text-amber-800">You have unsaved changes</p>
-                        <p className="text-sm text-amber-700 mt-0.5">Switching staff members will discard your pending changes.</p>
+                        <p className="text-sm font-semibold text-amber-800">
+                            You have unsaved changes
+                        </p>
+                        <p className="text-sm text-amber-700 mt-0.5">
+                            Switching staff members will discard your pending
+                            changes.
+                        </p>
                     </div>
                     <div className="flex gap-2 shrink-0">
-                        <Button variant="secondary" className="text-xs py-1.5 px-3" onClick={() => { setSwitchWarning(null); setPendingEmployeeSwitch(null); }}>
+                        <Button
+                            variant="secondary"
+                            className="text-xs py-1.5 px-3"
+                            onClick={() => {
+                                setSwitchWarning(null);
+                                setPendingEmployeeSwitch(null);
+                            }}
+                        >
                             Cancel
                         </Button>
-                        <Button variant="danger" className="text-xs py-1.5 px-3" onClick={confirmEmployeeSwitch}>
+                        <Button
+                            variant="danger"
+                            className="text-xs py-1.5 px-3"
+                            onClick={confirmEmployeeSwitch}
+                        >
                             Discard &amp; Switch
                         </Button>
                     </div>
@@ -498,7 +637,9 @@ export default function SchedulePage() {
 
             {/* Quick-fill templates */}
             <div className="mb-5">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Quick-fill templates</p>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                    Quick-fill templates
+                </p>
                 <div className="grid grid-cols-3 gap-3">
                     {TEMPLATES.map((tpl) => (
                         <button
@@ -509,10 +650,16 @@ export default function SchedulePage() {
                         >
                             <div className="flex items-center gap-2 text-primary-500 mb-2 group-hover:text-primary-600">
                                 {tpl.icon}
-                                <span className="text-sm font-bold text-gray-800 group-hover:text-gray-900">{tpl.label}</span>
+                                <span className="text-sm font-bold text-gray-800 group-hover:text-gray-900">
+                                    {tpl.label}
+                                </span>
                             </div>
-                            <p className="text-sm font-semibold text-gray-700">{tpl.description}</p>
-                            <p className="text-xs text-gray-400 mt-0.5">{tpl.subtitle}</p>
+                            <p className="text-sm font-semibold text-gray-700">
+                                {tpl.description}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                                {tpl.subtitle}
+                            </p>
                         </button>
                     ))}
                 </div>
@@ -520,13 +667,29 @@ export default function SchedulePage() {
 
             {/* Legend */}
             <div className="flex items-center gap-4 mb-4 text-xs text-gray-500">
-                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-gray-200 border border-gray-300 inline-block" />Available</span>
-                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-green-500 inline-block" />New (unsaved)</span>
-                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-primary-100 border border-primary-300 inline-block" />Marked for removal</span>
-                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-blue-500 inline-block" />Booked</span>
-                {slotsLoading && <span className="text-gray-400 italic">Loading…</span>}
+                <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded bg-gray-200 border border-gray-300 inline-block" />
+                    Available
+                </span>
+                <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded bg-green-500 inline-block" />
+                    New (unsaved)
+                </span>
+                <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded bg-primary-100 border border-primary-300 inline-block" />
+                    Marked for removal
+                </span>
+                <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded bg-blue-500 inline-block" />
+                    Booked
+                </span>
+                {slotsLoading && (
+                    <span className="text-gray-400 italic">Loading…</span>
+                )}
                 {selectedEmployee && !isSoleOperator && (
-                    <span className="ml-auto font-semibold text-gray-700">{selectedEmployee.name}</span>
+                    <span className="ml-auto font-semibold text-gray-700">
+                        {selectedEmployee.name}
+                    </span>
                 )}
             </div>
 
@@ -556,21 +719,32 @@ export default function SchedulePage() {
                     <div className="bg-white border border-gray-200 rounded-2xl shadow-xl px-6 py-4 flex items-center gap-6 pointer-events-auto">
                         <div className="text-sm text-gray-700 flex items-center gap-3">
                             {pendingAdd.length > 0 && (
-                                <span className="text-green-600 font-bold">+{pendingAdd.length} to add</span>
+                                <span className="text-green-600 font-bold">
+                                    +{pendingAdd.length} to add
+                                </span>
                             )}
                             {pendingDelete.size > 0 && (
-                                <span className="text-primary-600 font-bold">{pendingDelete.size} to remove</span>
+                                <span className="text-primary-600 font-bold">
+                                    {pendingDelete.size} to remove
+                                </span>
                             )}
                         </div>
                         <Button
                             variant="secondary"
                             className="text-sm"
-                            onClick={() => { setPendingAdd([]); setPendingDelete(new Set()); }}
+                            onClick={() => {
+                                setPendingAdd([]);
+                                setPendingDelete(new Set());
+                            }}
                             disabled={saving}
                         >
                             Discard
                         </Button>
-                        <Button onClick={handleSave} disabled={saving} className="px-6 font-bold">
+                        <Button
+                            onClick={handleSave}
+                            disabled={saving}
+                            className="px-6 font-bold"
+                        >
                             {saving ? "Saving…" : "Save changes"}
                         </Button>
                     </div>

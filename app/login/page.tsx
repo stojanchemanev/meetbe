@@ -199,7 +199,7 @@ const Page = () => {
                 </Card>
 
                 <p className="text-center mt-8 text-sm font-medium text-gray-500">
-                    Don't have an account?{" "}
+                    Don&apos;t have an account?{" "}
                     <Link
                         href="/register"
                         className="text-primary-600 font-bold hover:underline"

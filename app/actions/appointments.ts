@@ -65,7 +65,7 @@ export async function getClientAppointments(): Promise<{
 
     if (error) return { data: null, error: error.message };
 
-    return { data: data as AppointmentWithRelations[], error: null };
+    return { data: data as unknown as AppointmentWithRelations[], error: null };
 }
 
 export async function getEmployeeSchedule(): Promise<{
@@ -108,7 +108,7 @@ export async function getEmployeeSchedule(): Promise<{
 
     if (error) return { data: null, error: error.message };
 
-    return { data: data as EmployeeAppointment[], error: null };
+    return { data: data as unknown as EmployeeAppointment[], error: null };
 }
 
 export async function cancelAppointment(

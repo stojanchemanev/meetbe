@@ -27,6 +27,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
     useEffect(() => {
         const saved = localStorage.getItem("meetbe_appointments");
         if (saved) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setAppointments(JSON.parse(saved));
         }
     }, []);
@@ -43,7 +44,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const updateStatus = (id: string, status: "CONFIRMED" | "CANCELLED") => {
         const newApps = appointments.map((a) =>
-            a.id === id ? { ...a, status } : a
+            a.id === id ? { ...a, status } : a,
         );
         save(newApps);
     };
