@@ -70,7 +70,6 @@ const LoginContent = () => {
                 return;
             }
             console.log("user", user);
-            ``;
 
             const destination =
                 redirectTo !== "/"
