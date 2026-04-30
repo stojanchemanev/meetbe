@@ -69,6 +69,8 @@ const LoginContent = () => {
                 setSubmitting(false);
                 return;
             }
+            console.log("user", user);
+            ``;
 
             const destination =
                 redirectTo !== "/"
@@ -76,6 +78,7 @@ const LoginContent = () => {
                     : user?.role === UserRole.BUSINESS
                       ? "/dashboard/business"
                       : "/dashboard/client";
+
             router.push(destination);
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err: unknown) {
@@ -224,7 +227,13 @@ const LoginContent = () => {
 };
 
 const Page = () => (
-    <Suspense>
+    <Suspense
+        fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                Loading...
+            </div>
+        }
+    >
         <LoginContent />
     </Suspense>
 );
