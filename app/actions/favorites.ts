@@ -33,7 +33,7 @@ export async function getFavorites(): Promise<{
 
     if (error) return { data: null, error: error.message };
 
-    return { data: data as Favorite[], error: null };
+    return { data: data as unknown as Favorite[], error: null };
 }
 
 export async function addFavorite(
