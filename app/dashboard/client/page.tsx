@@ -2,7 +2,14 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Briefcase, Calendar, ChevronRight, Heart, Search, User as UserIcon } from "lucide-react";
+import {
+    Briefcase,
+    Calendar,
+    ChevronRight,
+    Heart,
+    Search,
+    User as UserIcon,
+} from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Card, Button } from "@/src/components/ui";
@@ -23,13 +30,14 @@ export default function ClientDashboard() {
     const { user, employeeLinks, loading, isAuthenticated } = useAuth();
     const router = useRouter();
 
-    const [appointments, setAppointments] = useState<AppointmentWithRelations[]>(
-        [],
-    );
+    const [appointments, setAppointments] = useState<
+        AppointmentWithRelations[]
+    >([]);
     const [apptLoading, setApptLoading] = useState(true);
     const [cancelTarget, setCancelTarget] =
         useState<AppointmentWithRelations | null>(null);
 
+    console.log("isAuthenticated", isAuthenticated);
     useEffect(() => {
         if (isAuthenticated === false) {
             router.push("/login");
@@ -63,17 +71,23 @@ export default function ClientDashboard() {
         setCancelTarget(null);
     };
 
-    if (loading || !user) return (
-        <main className="max-w-4xl mx-auto px-6 py-12">
-            <div className="animate-pulse space-y-6">
-                <div className="h-8 bg-gray-100 rounded w-1/3" />
-                <div className="grid sm:grid-cols-3 gap-4">
-                    {[1,2,3].map(i => <div key={i} className="h-32 bg-gray-100 rounded-xl" />)}
+    if (loading || !user)
+        return (
+            <main className="max-w-4xl mx-auto px-6 py-12">
+                <div className="animate-pulse space-y-6">
+                    <div className="h-8 bg-gray-100 rounded w-1/3" />
+                    <div className="grid sm:grid-cols-3 gap-4">
+                        {[1, 2, 3].map((i) => (
+                            <div
+                                key={i}
+                                className="h-32 bg-gray-100 rounded-xl"
+                            />
+                        ))}
+                    </div>
+                    <div className="h-64 bg-gray-100 rounded-xl" />
                 </div>
-                <div className="h-64 bg-gray-100 rounded-xl" />
-            </div>
-        </main>
-    );
+            </main>
+        );
 
     const profileFields = [
         user.name,
@@ -92,8 +106,7 @@ export default function ClientDashboard() {
     const upcoming = appointments
         .filter(
             (a) =>
-                a.status !== "CANCELLED" &&
-                new Date(a.slot.start_time) > now,
+                a.status !== "CANCELLED" && new Date(a.slot.start_time) > now,
         )
         .sort(
             (a, b) =>
@@ -232,7 +245,8 @@ export default function ClientDashboard() {
                                             </span>
                                         </div>
                                         <p className="font-bold text-gray-900 truncate">
-                                            {appt.service?.name ?? "Appointment"}{" "}
+                                            {appt.service?.name ??
+                                                "Appointment"}{" "}
                                             &mdash; {appt.business.name}
                                         </p>
                                         <p className="text-sm text-gray-500 mt-0.5">
