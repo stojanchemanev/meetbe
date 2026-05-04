@@ -17,7 +17,7 @@ interface AuthContextType {
     login: (
         email: string,
         password: string,
-    ) => Promise<{ success: boolean; error?: string }>;
+    ) => Promise<{ success: boolean; error?: string; role?: UserRole }>;
     register: (
         name: string,
         email: string,
@@ -106,39 +106,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             }
         });
 
-        const init = async () => {
-            const {
-                data: { session },
-            } = await supabase.auth.getSession();
-
-            if (session?.user) {
-                setIsAuthenticated(true);
-
-                const [profile, links] = await Promise.all([
-                    fetchProfile(session.user.id),
-                    fetchEmployeeLinks(session.user.id),
-                ]);
-
-                setUser(profile);
-                setEmployeeLinks(links);
-            } else {
-                setIsAuthenticated(false);
-            }
-        };
-
-        init();
-
         return () => subscription.unsubscribe();
     }, [supabase]);
 
     const login = async (email: string, password: string) => {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
         if (error) return { success: false, error: error.message };
-        // onAuthStateChange will fire and set the user automatically
-        return { success: true };
+        // Fetch role so the caller can redirect to the correct dashboard immediately.
+        // onAuthStateChange fires concurrently and sets full user state.
+        const { data: profile } = await supabase
+            .from("users")
+            .select("role")
+            .eq("id", data.user.id)
+            .maybeSingle();
+        return { success: true, role: profile?.role as UserRole | undefined };
     };
 
     const logout = async () => {
@@ -155,9 +139,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         const result = await signUp(email, password, name, role);
         if (result.error) return { success: false, error: result.error };
 
-        // signUp finished — profile row is committed, now safe to fetch
-        if (result.profile) {
-            setUser(result.profile as User);
+        // If email confirmation is required, no session is created and
+        // onAuthStateChange won't fire — explicitly end the loading state.
+        const {
+            data: { session },
+        } = await supabase.auth.getSession();
+        if (!session) {
+            setIsAuthenticated(false);
         }
         return { success: true };
     };

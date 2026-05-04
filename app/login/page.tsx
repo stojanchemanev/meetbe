@@ -63,17 +63,23 @@ const LoginContent = () => {
         }
         try {
             const result = await login(email, password);
-            console.log("result", result);
 
             if (!result.success) {
                 setError(result.error || "Login failed");
                 setSubmitting(false);
                 return;
             }
+
+            const destination =
+                redirectTo !== "/"
+                    ? redirectTo
+                    : result.role === UserRole.BUSINESS
+                      ? "/dashboard/business"
+                      : "/dashboard/client";
+            router.push(destination);
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err: unknown) {
             setError("An unexpected error occurred. Please try again.");
-        } finally {
             setSubmitting(false);
         }
     };
