@@ -25,17 +25,18 @@ const LoginContent = () => {
             : "",
     );
 
-    // useEffect(() => {
-    //     if (user && !loading) {
-    //         const destination =
-    //             redirectTo !== "/"
-    //                 ? redirectTo
-    //                 : user.role === UserRole.BUSINESS
-    //                   ? "/dashboard/business"
-    //                   : "/dashboard/client";
-    //         router.push(destination);
-    //     }
-    // }, [user, loading, router, redirectTo]);
+    useEffect(() => {
+        if (user) {
+            const destination =
+                redirectTo !== "/"
+                    ? redirectTo
+                    : user.role === UserRole.BUSINESS
+                      ? "/dashboard/business"
+                      : "/dashboard/client";
+
+            router.push(destination);
+        }
+    }, [user, redirectTo, router]);
 
     const handleOAuth = async (provider: "google" | "facebook") => {
         setError("");
@@ -69,16 +70,6 @@ const LoginContent = () => {
                 setSubmitting(false);
                 return;
             }
-            console.log("user", user);
-
-            const destination =
-                redirectTo !== "/"
-                    ? redirectTo
-                    : user?.role === UserRole.BUSINESS
-                      ? "/dashboard/business"
-                      : "/dashboard/client";
-
-            router.push(destination);
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err: unknown) {
             setError("An unexpected error occurred. Please try again.");

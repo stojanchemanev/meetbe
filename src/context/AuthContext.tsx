@@ -106,6 +106,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             }
         });
 
+        const init = async () => {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+
+            if (session?.user) {
+                setIsAuthenticated(true);
+
+                const [profile, links] = await Promise.all([
+                    fetchProfile(session.user.id),
+                    fetchEmployeeLinks(session.user.id),
+                ]);
+
+                setUser(profile);
+                setEmployeeLinks(links);
+            } else {
+                setIsAuthenticated(false);
+            }
+        };
+
+        init();
+
         return () => subscription.unsubscribe();
     }, [supabase]);
 

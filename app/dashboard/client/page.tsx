@@ -39,10 +39,10 @@ export default function ClientDashboard() {
 
     console.log("isAuthenticated", isAuthenticated);
     useEffect(() => {
-        if (isAuthenticated === false) {
+        if (isAuthenticated === false && !loading) {
             router.push("/login");
         }
-    }, [isAuthenticated, router]);
+    }, [isAuthenticated, router, loading]);
 
     useEffect(() => {
         if (!user) return;
@@ -71,6 +71,7 @@ export default function ClientDashboard() {
         setCancelTarget(null);
     };
 
+    console.log("user", user);
     if (loading || !user)
         return (
             <main className="max-w-4xl mx-auto px-6 py-12">
@@ -114,6 +115,11 @@ export default function ClientDashboard() {
                 new Date(b.slot.start_time).getTime(),
         );
     const next = upcoming[0];
+    console.log("loading", loading);
+
+    if (loading) {
+        return <div>Checking session...</div>;
+    }
 
     return (
         <main className="max-w-4xl mx-auto px-6 py-12">
